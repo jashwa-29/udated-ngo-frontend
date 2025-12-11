@@ -109,7 +109,7 @@ const Receivers = () => {
 
   if (isLoading) {
     return (
-      <section className="px-4 mx-auto sm:px-6 lg:px-16 py-8">
+      <section className="px-4 mx-auto sm:px-6 lg:px-16 py-8 pt-28 lg:pt-36">
         <h2 className="text-2xl font-bold pl-7 py-6">Medical Donation Recipients</h2>
         <div className="flex items-center justify-center flex-wrap gap-11">
           {[...Array(4)].map((_, index) => (

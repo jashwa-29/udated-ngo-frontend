@@ -52,6 +52,7 @@ const App = () => {
   return (
     <CurrencyProvider>
       <BrowserRouter>
+
         <ScrollToTop />
         <Suspense fallback={<Loading />}>
           <Routes>
