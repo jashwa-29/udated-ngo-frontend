@@ -67,7 +67,7 @@ const Requests = () => {
           </button>
         </div>
         <div className="flex justify-center items-center h-40">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0B8B68]"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#4D9186]"></div>
         </div>
       </div>
     );
@@ -154,7 +154,7 @@ const Requests = () => {
                 <Link
                   to={`/admin/request/${item.id}`}
                   state={{ recipientData: item }}
-                  className="bg-[#0B8B68] hover:bg-[#0a7a5d] text-white px-4 py-2 text-sm rounded transition-colors"
+                  className="bg-[#4D9186] hover:bg-[#0a7a5d] text-white px-4 py-2 text-sm rounded transition-colors"
                 >
                   View Details
                 </Link>

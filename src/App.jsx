@@ -1,35 +1,44 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
-import Header from './Components/CommonComponents/Header';
-import Footer from './Components/CommonComponents/Footer';
+import { CurrencyProvider } from './context/CurrencyContext.jsx';
+import { ROLES } from './utils/constants';
 
-import Home from './Pages/CommonPages/Home';
-import About from './Pages/CommonPages/About';
-import Contact from './Pages/CommonPages/Contact';
-import Login from './Pages/CommonPages/Login';
-import AdminLogin from './Pages/CommonPages/AdminLogin';
-import DonorLogin from './Pages/CommonPages/DonorLogin';
-import RecipientsLogin from './Pages/CommonPages/RecipientsLogin';
+// Components
 import ProtectedRoute from './Pages/CommonPages/ProtectedRoute';
 import ProtectedLayout from './Components/CommonComponents/ProtectedLayout';
-import AdminHome from './Pages/AdminPages/AdminHome.jsx';
-import TotalRecipients from './Pages/AdminPages/TotalRecipients';
-import RecipientDetails from './Pages/AdminPages/RecipientsDetailPage.jsx';
-import DonorList from './Pages/AdminPages/DonorList.jsx';
-import DonorDetails from './Pages/AdminPages/DonorDetails.jsx';
-import DonorHome from './Pages/DonorPages/DonorHome.jsx';
-import MyDonations from './Pages/DonorPages/MyDonations.jsx';
+import PublicLayout from './Components/CommonComponents/PublicLayout';
+import Loading from './Components/CommonComponents/Loading';
 
-import MyDonationsDetail from './Pages/DonorPages/MyDonationsDetail.jsx';
-import Requests from './Pages/AdminPages/Requests.jsx';
-import RecipientHome from './Pages/RecipientsPages/RecipientHome.jsx';
-import ViewDetails from './Pages/RecipientsPages/ViewDetails.jsx';
-import Receivers from './Pages/CommonPages/Receivers.jsx';
-import { CurrencyProvider } from './context/CurrencyContext.jsx';
-import RequestDetails from './Pages/AdminPages/RequestDetails.jsx';
-import axios from 'axios';
-import RequestForm from './Pages/RecipientsPages/RequestForm.jsx';
-  const ScrollToTop = () => {
+// Lazy Loaded Pages
+const Home = lazy(() => import('./Pages/CommonPages/Home'));
+const About = lazy(() => import('./Pages/CommonPages/About'));
+const Contact = lazy(() => import('./Pages/CommonPages/Contact'));
+const Login = lazy(() => import('./Pages/CommonPages/Login'));
+const AdminLogin = lazy(() => import('./Pages/CommonPages/AdminLogin'));
+const DonorLogin = lazy(() => import('./Pages/CommonPages/DonorLogin'));
+const RecipientsLogin = lazy(() => import('./Pages/CommonPages/RecipientsLogin'));
+const Receivers = lazy(() => import('./Pages/CommonPages/Receivers.jsx'));
+
+// Admin Pages
+const AdminHome = lazy(() => import('./Pages/AdminPages/AdminHome.jsx'));
+const TotalRecipients = lazy(() => import('./Pages/AdminPages/TotalRecipients'));
+const RecipientDetails = lazy(() => import('./Pages/AdminPages/RecipientsDetailPage.jsx'));
+const DonorList = lazy(() => import('./Pages/AdminPages/DonorList.jsx'));
+const DonorDetails = lazy(() => import('./Pages/AdminPages/DonorDetails.jsx'));
+const Requests = lazy(() => import('./Pages/AdminPages/Requests.jsx'));
+const RequestDetails = lazy(() => import('./Pages/AdminPages/RequestDetails.jsx'));
+
+// Donor Pages
+const DonorHome = lazy(() => import('./Pages/DonorPages/DonorHome.jsx'));
+const MyDonations = lazy(() => import('./Pages/DonorPages/MyDonations.jsx'));
+const MyDonationsDetail = lazy(() => import('./Pages/DonorPages/MyDonationsDetail.jsx'));
+
+// Recipient Pages
+const RecipientHome = lazy(() => import('./Pages/RecipientsPages/RecipientHome.jsx'));
+const ViewDetails = lazy(() => import('./Pages/RecipientsPages/ViewDetails.jsx'));
+const RequestForm = lazy(() => import('./Pages/RecipientsPages/RequestForm.jsx'));
+
+const ScrollToTop = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
@@ -40,275 +49,162 @@ import RequestForm from './Pages/RecipientsPages/RequestForm.jsx';
 };
 
 const App = () => {
-
-
-
-
-
-
   return (
-      <CurrencyProvider>
-    <BrowserRouter>
-     <ScrollToTop />
-      <Routes>
-        {/* Public Routes */}
-        <Route
-          path="/"
-          element={
-            <>
-              <Header />
-              <Home/>
-              <Footer />
-            </>
-          }
-        />
-        <Route
-          path="/about"
-          element={
-            <>
-              <Header />
-              <About />
-              <Footer />
-            </>
-          }
-        />
-          <Route
-          path="/receivers"
-          element={
-            <>
-              <Header />
-              <Receivers />
-              <Footer />
-            </>
-          }
-        />
-        <Route
-          path="/contact"
-          element={
-            <>
-              <Header />
-              <Contact />
-              <Footer />
-            </>
-          }
-        />
-        <Route
-          path="/login"
-          element={
-            <>
-              <Header />
-              <Login />
-              <Footer />
-            </>
-          }
-        />
-        <Route
-          path="/login/admin-login"
-          element={
-            <>
-              <Header />
-              <AdminLogin />
-              <Footer />
-            </>
-          }
-        />
-        <Route
-          path="/login/recipients-login"
-          element={
-            <>
-              <Header />
-              <RecipientsLogin />
-              <Footer />
-            </>
-          }
-        />
-        <Route
-          path="/login/donor-login"
-          element={
-            <>
-              <Header />
-              <DonorLogin />
-              <Footer />
-            </>
-          }
-        />
+    <CurrencyProvider>
+      <BrowserRouter>
+        <ScrollToTop />
+        <Suspense fallback={<Loading />}>
+          <Routes>
+            {/* Public Routes */}
+            <Route element={<PublicLayout />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/receivers" element={<Receivers />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/admin-login" element={<AdminLogin />} />
+              <Route path="/recipients-login" element={<RecipientsLogin />} />
+              <Route path="/donor-login" element={<DonorLogin />} />
+            </Route>
 
-        {/* Protected Routes For Admin Dashboard */}
-        <Route
-          path="/admin/dashboard"
-          element={
-            <ProtectedRoute allowedRole="ADMIN">
-              <ProtectedLayout heading={'ADMIN'}>
-                <AdminHome/>
-              </ProtectedLayout>
-            </ProtectedRoute>
-          }
-        />
-               <Route
-          path="/admin/total-recipients"
-          element={
-            <ProtectedRoute allowedRole="ADMIN">
-              <ProtectedLayout heading={'admin'}>
-                <TotalRecipients/>
-              </ProtectedLayout>
-            </ProtectedRoute>
-          }
-        />
-                       <Route
-          path="/admin/total-recipients"
-          element={
-            <ProtectedRoute allowedRole="ADMIN">
-              <ProtectedLayout heading={'admin'}>
-                <TotalRecipients/>
-              </ProtectedLayout>
-            </ProtectedRoute>
-          }
-        />
-        
-                       <Route
-          path="/admin/recipient/:recipientId"
-          element={
-            <ProtectedRoute allowedRole="ADMIN">
-              <ProtectedLayout heading={'admin'}>
-                <RecipientDetails/>
-              </ProtectedLayout>
-            </ProtectedRoute>
-          }
-        />
+            {/* Admin Routes */}
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute allowedRole={ROLES.ADMIN}>
+                  <ProtectedLayout>
+                    <AdminHome />
+                  </ProtectedLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/total-recipients"
+              element={
+                <ProtectedRoute allowedRole={ROLES.ADMIN}>
+                  <ProtectedLayout>
+                    <TotalRecipients />
+                  </ProtectedLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/recipient/:recipientId"
+              element={
+                <ProtectedRoute allowedRole={ROLES.ADMIN}>
+                  <ProtectedLayout>
+                    <RecipientDetails />
+                  </ProtectedLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/request/:id"
+              element={
+                <ProtectedRoute allowedRole={ROLES.ADMIN}>
+                  <ProtectedLayout>
+                    <RequestDetails />
+                  </ProtectedLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/total-donors"
+              element={
+                <ProtectedRoute allowedRole={ROLES.ADMIN}>
+                  <ProtectedLayout>
+                    <DonorList />
+                  </ProtectedLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/requests"
+              element={
+                <ProtectedRoute allowedRole={ROLES.ADMIN}>
+                  <ProtectedLayout>
+                    <Requests />
+                  </ProtectedLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/total-donors/donor/:id"
+              element={
+                <ProtectedRoute allowedRole={ROLES.ADMIN}>
+                  <ProtectedLayout>
+                    <DonorDetails />
+                  </ProtectedLayout>
+                </ProtectedRoute>
+              }
+            />
 
-               <Route
-          path="/admin/request/:id"
-          element={
-            <ProtectedRoute allowedRole="ADMIN">
-              <ProtectedLayout heading={'admin'}>
-                <RequestDetails/>
-              </ProtectedLayout>
-            </ProtectedRoute>
-          }
-        />
-                <Route
-          path="/admin/total-donors"
-          element={
-            <ProtectedRoute allowedRole="ADMIN">
-              <ProtectedLayout heading={'admin'}>
-                <DonorList/>
-              </ProtectedLayout>
-            </ProtectedRoute>
-          }
-        />
-             <Route
-          path="/admin/requests"
-          element={
-            <ProtectedRoute allowedRole="ADMIN">
-              <ProtectedLayout heading={'admin'}>
-                <Requests/>
-              </ProtectedLayout>
-            </ProtectedRoute>
-          }
-        />
-                     <Route
-          path="/admin/total-donors/donor/:id"
-          element={
-            <ProtectedRoute allowedRole="ADMIN">
-              <ProtectedLayout heading={'admin'}>
-                <DonorDetails/>
-              </ProtectedLayout>
-            </ProtectedRoute>
-          }
-        />
+            {/* Donor Routes */}
+            <Route
+              path="/donor/dashboard"
+              element={
+                <ProtectedRoute allowedRole={ROLES.DONOR}>
+                  <ProtectedLayout>
+                    <DonorHome />
+                  </ProtectedLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/donor/mydonation"
+              element={
+                <ProtectedRoute allowedRole={ROLES.DONOR}>
+                  <ProtectedLayout>
+                    <MyDonations />
+                  </ProtectedLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/donor/donation/:recipientId"
+              element={
+                <ProtectedRoute allowedRole={ROLES.DONOR}>
+                  <ProtectedLayout>
+                    <MyDonationsDetail />
+                  </ProtectedLayout>
+                </ProtectedRoute>
+              }
+            />
 
-           {/* Protected Routes For Admin Dashboard */}
-                <Route
-          path="/donor/dashboard"
-          element={
-            <ProtectedRoute allowedRole="DONOR">
-              <ProtectedLayout heading={'donor'}>
-                <DonorHome/>
-              </ProtectedLayout>
-            </ProtectedRoute>
-          }
-        />
-
-
-                   <Route
-          path="/donor/mydonation"
-          element={
-            <ProtectedRoute allowedRole="DONOR">
-              <ProtectedLayout heading={'donor'}>
-                <MyDonations/>
-              </ProtectedLayout>
-            </ProtectedRoute>
-          }
-        />
-
- 
-
-                        <Route
-          path="/donor/donation/:recipientId"
-          element={
-            <ProtectedRoute allowedRole="DONOR">
-              <ProtectedLayout heading={'donor'}>
-                <MyDonationsDetail/>
-              </ProtectedLayout>
-            </ProtectedRoute>
-          }
-        />
-        {/* <Route
-          path="/login/donor-login"
-          element={
-            <ProtectedRoute allowedRole="donor">
-              <ProtectedLayout  heading={'donor'}>
-                <DonorLogin />
-              </ProtectedLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/login/recipients-login"
-          element={
-            <ProtectedRoute allowedRole="recipient">
-              <ProtectedLayout  heading={'recipient'}>
-                <RecipientsLogin />
-              </ProtectedLayout>
-            </ProtectedRoute>
-          }
-        /> */}
-
-
-
-         {/* Protected Routes For Admin Dashboard */}
-        <Route
-          path="/recipient/dashboard"
-          element={
-            <ProtectedRoute allowedRole="RECIPIENT">
-              <ProtectedLayout heading={'recipient'}>
-                <RecipientHome/>
-              </ProtectedLayout>
-            </ProtectedRoute>
-          }
-        />
-          <Route
-          path="/recipient/request"
-          element={
-            <ProtectedRoute allowedRole="RECIPIENT">
-              <ProtectedLayout heading={'recipient'}>
-                <RequestForm/>
-              </ProtectedLayout>
-            </ProtectedRoute>
-          }
-        />
-          <Route
-          path="/recipient/recipient-details/:id"
-          element={
-            <ProtectedRoute allowedRole="RECIPIENT">
-              <ProtectedLayout heading={'recipient'}>
-                <ViewDetails/>
-              </ProtectedLayout>
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </BrowserRouter>
+            {/* Recipient Routes */}
+            <Route
+              path="/recipient/dashboard"
+              element={
+                <ProtectedRoute allowedRole={ROLES.RECIPIENT}>
+                  <ProtectedLayout>
+                    <RecipientHome />
+                  </ProtectedLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/recipient/request"
+              element={
+                <ProtectedRoute allowedRole={ROLES.RECIPIENT}>
+                  <ProtectedLayout>
+                    <RequestForm />
+                  </ProtectedLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/recipient/recipient-details/:id"
+              element={
+                <ProtectedRoute allowedRole={ROLES.RECIPIENT}>
+                  <ProtectedLayout>
+                    <ViewDetails />
+                  </ProtectedLayout>
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </Suspense>
+      </BrowserRouter>
     </CurrencyProvider>
   );
 };

@@ -105,7 +105,7 @@ const RecipientHome = () => {
             <p className='text-[19px]'>Submitted On: {formatDate(item.requesteddate)}</p>
             <button
               onClick={() => handleViewDetails(item)}
-              className='bg-[#0B8B68] mt-4 text-white w-30 py-2 text-sm font-semibold rounded'
+              className='bg-[#4D9186] mt-4 text-white w-30 py-2 text-sm font-semibold rounded'
             >
               View Details
             </button>

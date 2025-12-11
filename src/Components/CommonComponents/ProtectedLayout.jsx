@@ -65,7 +65,7 @@ function formatRole(str) {
                 key={link.path}
                 to={link.path}
                 className={`block px-4 py-2 rounded  text-black ${
-                  location.pathname.startsWith(link.path) ? 'bg-[#0B8B68] text-white font-medium hover:bg-[#0B8B68]' : 'hover:bg-gray-200'
+                  location.pathname.startsWith(link.path) ? 'bg-[#4D9186] text-white font-medium hover:bg-[#4D9186]' : 'hover:bg-gray-200'
                 }`}
               >
                 {link.label}

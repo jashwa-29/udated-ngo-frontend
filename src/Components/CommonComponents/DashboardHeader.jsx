@@ -62,7 +62,7 @@ const DashboardHeader = ({ onToggleSidebar, isSidebarOpen, heading }) => {
             <select
               value={currency}
               onChange={handleCurrencyChange}
-              className="hidden lg:block text-sm font-medium border border-[#0B8B68] px-3 py-1 rounded hover:bg-[#0B8B68] hover:text-white transition bg-white text-[#0B8B68]"
+              className="hidden lg:block text-sm font-medium border border-[#4D9186] px-3 py-1 rounded hover:bg-[#4D9186] hover:text-white transition bg-white text-[#4D9186]"
             >
               <option value="INR">₹ INR</option>
               <option value="USD">$ USD</option>
@@ -71,7 +71,7 @@ const DashboardHeader = ({ onToggleSidebar, isSidebarOpen, heading }) => {
             {/* Desktop Logout Button */}
             <button
               onClick={handleLogout}
-              className="hidden lg:inline-flex items-center px-6 py-2.5 text-sm font-medium text-white bg-[#0B8B68] border border-white hover:bg-white hover:text-[#0B8B68] hover:border-[#0B8B68] rounded transition"
+              className="hidden lg:inline-flex items-center px-6 py-2.5 text-sm font-medium text-white bg-[#4D9186] border border-white hover:bg-white hover:text-[#4D9186] hover:border-[#4D9186] rounded transition"
             >
               Logout
             </button>
@@ -80,7 +80,7 @@ const DashboardHeader = ({ onToggleSidebar, isSidebarOpen, heading }) => {
             <div className="lg:hidden relative">
               <button
                 onClick={() => setMobileLogoutOpen(!mobileLogoutOpen)}
-                className="text-sm font-medium px-3 py-1 border rounded text-white bg-[#0B8B68]"
+                className="text-sm font-medium px-3 py-1 border rounded text-white bg-[#4D9186]"
               >
                 ☰
               </button>

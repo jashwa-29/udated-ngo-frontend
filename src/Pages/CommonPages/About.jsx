@@ -7,144 +7,157 @@ import {
   UsersIcon,
   ChartBarIcon,
   GlobeAltIcon,
-  SparklesIcon
+  SparklesIcon,
+  HandRaisedIcon
 } from '@heroicons/react/24/outline';
+import { Link } from 'react-router-dom';
 
 const AboutUs = () => {
   const [activeTab, setActiveTab] = useState('mission');
 
   return (
-    <div className="min-h-screen  py-12 px-4 sm:px-6 lg:px-16 mt-6">
-      <div className=" mx-auto">
-        {/* Hero Section with Animation */}
-        <div className="text-center mb-16 animate-fade-in">
-          <span className="inline-block bg-indigo-100 text-[#0B8B68] px-4 py-2 rounded-full text-sm font-medium mb-4">
-            Transforming Philanthropy
+    <div className="min-h-screen bg-gray-50">
+      {/* Hero Section */}
+      <div className="relative bg-primary py-24 sm:py-32 overflow-hidden">
+        <div className="absolute inset-0 opacity-10 pattern-dots"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <span className="inline-block bg-white/20 text-white px-4 py-1.5 rounded-full text-sm font-medium mb-6 backdrop-blur-sm">
+            Est. 2020 • Non-Profit Organization
           </span>
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-            Where <span className="text-[#0B8B68]">Generosity</span> Meets <span className="text-[#0B8B68]">Visibility</span>
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 font-heading leading-tight">
+            Empowering Lives, <br />
+            <span className="text-white/90">Building Futures</span>
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            A revolutionary platform that empowers donors while creating sustainable impact for communities in need.
+          <p className="text-xl text-indigo-50 max-w-2xl mx-auto font-light leading-relaxed">
+            We are dedicated to bridging the gap between compassionate donors and individuals in critical need, ensuring every contribution creates a lasting impact.
           </p>
         </div>
+      </div>
 
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-10">
         {/* Interactive Tabs Section */}
-        <div className="mb-20">
-          <div className="flex justify-center space-x-2 mb-8">
-            <button
-              onClick={() => setActiveTab('mission')}
-              className={`px-6 py-3 rounded-full font-medium transition-all ${activeTab === 'mission' ? 'bg-[#0B8B68] text-white' : 'bg-white text-gray-700 hover:bg-gray-100'}`}
-            >
-              Our Mission
-            </button>
-            <button
-              onClick={() => setActiveTab('story')}
-              className={`px-6 py-3 rounded-full font-medium transition-all ${activeTab === 'story' ? 'bg-[#0B8B68] text-white' : 'bg-white text-gray-700 hover:bg-gray-100'}`}
-            >
-              Our Story
-            </button>
-            <button
-              onClick={() => setActiveTab('team')}
-              className={`px-6 py-3 rounded-full font-medium transition-all ${activeTab === 'team' ? 'bg-[#0B8B68] text-white' : 'bg-white text-gray-700 hover:bg-gray-100'}`}
-            >
-              Our Team
-            </button>
+        <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+          <div className="flex border-b border-gray-100 overflow-x-auto scrollbar-hide">
+            {['mission', 'story', 'team'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`flex-1 py-6 px-8 text-center font-semibold text-lg transition-all whitespace-nowrap ${
+                  activeTab === tab 
+                    ? 'text-primary border-b-4 border-primary bg-gray-50/50' 
+                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                Our {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </button>
+            ))}
           </div>
 
-          <div className="bg-white rounded-3xl shadow-xl p-8 md:p-12">
+          <div className="p-8 md:p-12 lg:p-16">
             {activeTab === 'mission' && (
-              <div className="flex flex-col md:flex-row items-center gap-8">
-                <div className="md:w-1/2">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-6">Redefining Giving</h2>
-                  <p className="text-lg text-gray-600 mb-6">
-                    At <span className="font-semibold text-[#0B8B68]">GiveAd</span>, we've created a new model for philanthropy that benefits both donors and recipients. Our platform turns every donation into an opportunity for visibility and connection.
+              <div className="flex flex-col md:flex-row items-center gap-12 animate-fade-in">
+                <div className="md:w-1/2 space-y-6">
+                  <h2 className="text-3xl font-bold text-gray-900 font-heading">
+                    Redefining <span className="text-primary">Philanthropy</span>
+                  </h2>
+                  <p className="text-lg text-secondary leading-relaxed">
+                    At <span className="font-semibold text-primary">GiveAd</span>, our mission is simple yet profound: to create a transparent, efficient, and dignified ecosystem for giving. We believe that technology can transform how we help one another.
                   </p>
-                  <ul className="space-y-4 mb-8">
-                    <li className="flex items-start">
-                      <SparklesIcon className="w-5 h-5 text-[#0B8B68] mt-1 mr-3" />
-                      <span>Transparent donation tracking</span>
-                    </li>
-                    <li className="flex items-start">
-                      <SparklesIcon className="w-5 h-5 text-[#0B8B68] mt-1 mr-3" />
-                      <span>Verified recipient profiles</span>
-                    </li>
-                    <li className="flex items-start">
-                      <SparklesIcon className="w-5 h-5 text-[#0B8B68] mt-1 mr-3" />
-                      <span>Customizable donor recognition</span>
-                    </li>
-                  </ul>
+                  <div className="space-y-4 pt-4">
+                    {[
+                      { icon: ShieldCheckIcon, text: "100% Transparent Donation Tracking" },
+                      { icon: UsersIcon, text: "Direct-to-Beneficiary Support" },
+                      { icon: HeartIcon, text: "Dignity-First Approach" }
+                    ].map((item, idx) => (
+                      <div key={idx} className="flex items-center p-4 bg-gray-50 rounded-xl border border-gray-100 hover:border-primary/30 transition-colors">
+                        <div className="bg-white p-2 rounded-lg shadow-sm mr-4">
+                          <item.icon className="w-6 h-6 text-primary" />
+                        </div>
+                        <span className="font-medium text-gray-800">{item.text}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 <div className="md:w-1/2">
-                  <div className="relative h-80 bg-indigo-100 rounded-2xl overflow-hidden">
+                  <div className="relative h-[500px] rounded-2xl overflow-hidden shadow-2xl group">
                     <img 
-                      src="https://images.unsplash.com/photo-1577896851231-70ef18881754?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" 
-                      alt="Community support" 
-                      className="absolute inset-0 w-full h-full object-cover"
+                      src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" 
+                      alt="Mission" 
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <div className="absolute bottom-8 left-8 text-white">
+                      <p className="text-sm font-medium uppercase tracking-wider mb-2">Our Vision</p>
+                      <p className="text-2xl font-heading font-bold">A world where no call for help goes unanswered.</p>
+                    </div>
                   </div>
                 </div>
               </div>
             )}
 
             {activeTab === 'story' && (
-              <div className="flex flex-col md:flex-row items-center gap-8">
+              <div className="flex flex-col md:flex-row items-center gap-12 animate-fade-in">
                 <div className="md:w-1/2 order-2 md:order-1">
-                  <div className="relative h-80 bg-indigo-100 rounded-2xl overflow-hidden">
+                  <div className="grid grid-cols-2 gap-4">
                     <img 
-                      src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" 
-                      alt="Our team" 
-                      className="absolute inset-0 w-full h-full object-cover"
+                      src="https://images.unsplash.com/photo-1593113598332-cd288d649433?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" 
+                      className="rounded-2xl shadow-lg w-full h-64 object-cover mb-8"
+                      alt="Early days"
+                    />
+                    <img 
+                      src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" 
+                      className="rounded-2xl shadow-lg w-full h-64 object-cover mt-8"
+                      alt="Community work"
                     />
                   </div>
                 </div>
-                <div className="md:w-1/2 order-1 md:order-2">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Journey</h2>
-                  <p className="text-lg text-gray-600 mb-6">
-                    Founded in 2020, GiveAd began as a small initiative to connect local businesses with families in need during the pandemic. Today, we've grown into a global platform facilitating millions in donations annually.
+                <div className="md:w-1/2 order-1 md:order-2 space-y-6">
+                  <h2 className="text-3xl font-bold text-gray-900 font-heading">From a Spark to a <span className="text-primary">Movement</span></h2>
+                  <p className="text-lg text-secondary leading-relaxed">
+                    Founded in 2020 during a global crisis, GiveAd began as a small community initiative to connect local businesses with families struggling to put food on the table.
                   </p>
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                    <div className="bg-indigo-50 p-4 rounded-xl">
-                      <div className="text-2xl font-bold text-[#0B8B68]">50K+</div>
-                      <div className="text-sm text-gray-600">Donations</div>
-                    </div>
-                    <div className="bg-indigo-50 p-4 rounded-xl">
-                      <div className="text-2xl font-bold text-[#0B8B68]">120+</div>
-                      <div className="text-sm text-gray-600">Communities</div>
-                    </div>
-                    <div className="bg-indigo-50 p-4 rounded-xl">
-                      <div className="text-2xl font-bold text-[#0B8B68]">$10M+</div>
-                      <div className="text-sm text-gray-600">Raised</div>
-                    </div>
+                  <p className="text-lg text-secondary leading-relaxed">
+                    What started with a few spreadsheets and phone calls has grown into a robust platform that has facilitated millions in aid. Yet, our core belief remains unchanged: <strong>compassion is contagious.</strong>
+                  </p>
+                  <div className="grid grid-cols-3 gap-6 pt-6">
+                    {[
+                      { label: "Donations", value: "50K+" },
+                      { label: "Communities", value: "120+" },
+                      { label: "Impact", value: "$10M+" }
+                    ].map((stat, idx) => (
+                      <div key={idx} className="text-center">
+                        <div className="text-3xl font-bold text-primary font-heading">{stat.value}</div>
+                        <div className="text-sm text-gray-500 font-medium uppercase tracking-wide mt-1">{stat.label}</div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
             )}
 
             {activeTab === 'team' && (
-              <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Meet Our Team</h2>
+              <div className="animate-fade-in">
+                <div className="text-center max-w-2xl mx-auto mb-12">
+                  <h2 className="text-3xl font-bold text-gray-900 font-heading mb-4">The People Behind the Purpose</h2>
+                  <p className="text-secondary">A diverse team of technologists, social workers, and dreamers united by a single goal.</p>
+                </div>
                 <div className="grid md:grid-cols-3 gap-8">
                   {[
-                    { name: 'Sarah Johnson', role: 'Founder & CEO', img: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80' },
-                    { name: 'Michael Chen', role: 'CTO', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80' },
-                    { name: 'Priya Patel', role: 'Community Director', img: 'https://images.unsplash.com/photo-1593104547489-5cfb3839a3b5?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80' },
+                    { name: 'Sarah Johnson', role: 'Founder & Executive Director', img: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80' },
+                    { name: 'Michael Chen', role: 'Head of Operations', img: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80' },
+                    { name: 'Priya Patel', role: 'Community Outreach Lead', img: 'https://images.unsplash.com/photo-1593104547489-5cfb3839a3b5?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80' },
                   ].map((member, index) => (
-                    <div key={index} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
-                      <div className="h-48 bg-gray-100 overflow-hidden">
-                        <img src={member.img} alt={member.name} className="w-full h-full object-cover" />
+                    <div key={index} className="group relative overflow-hidden rounded-2xl shadow-lg bg-white">
+                      <div className="aspect-w-3 aspect-h-4">
+                        <img src={member.img} alt={member.name} className="w-full h-80 object-cover transition-transform duration-500 group-hover:scale-110" />
                       </div>
-                      <div className="p-6">
-                        <h3 className="text-xl font-bold text-gray-900">{member.name}</h3>
-                        <p className="text-[#0B8B68] mb-4">{member.role}</p>
-                        <div className="flex space-x-4">
-                          <button className="text-[#0B8B68] hover:text-indigo-800">
-                            <span className="sr-only">LinkedIn</span>
-                            <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
-                            </svg>
-                          </button>
-                        </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                        <h3 className="text-xl font-bold text-white">{member.name}</h3>
+                        <p className="text-primary-light text-sm font-medium">{member.role}</p>
+                      </div>
+                      <div className="p-6 bg-white group-hover:hidden">
+                        <h3 className="text-lg font-bold text-gray-900">{member.name}</h3>
+                        <p className="text-primary text-sm">{member.role}</p>
                       </div>
                     </div>
                   ))}
@@ -153,154 +166,113 @@ const AboutUs = () => {
             )}
           </div>
         </div>
+      </div>
 
-        {/* Impact Section */}
-        <div className="mb-20">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Impact</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              See how your contributions create real change in communities worldwide
-            </p>
-          </div>
-          <div className="grid md:grid-cols-2 gap-8 mb-12">
-            <div className="bg-white rounded-3xl shadow-xl p-8">
-              <div className="flex items-center mb-6">
-                <div className="bg-indigo-100 p-3 rounded-full mr-4">
-                  <GlobeAltIcon className="w-8 h-8 text-[#0B8B68]" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900">Global Reach</h3>
-              </div>
-              <p className="text-gray-600 mb-6">
-                We operate in 12 countries across 3 continents, with local teams ensuring donations reach those who need them most.
+      {/* Impact Stats Section */}
+      <div className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
+            <div>
+              <span className="text-primary font-semibold tracking-wider uppercase text-sm">Our Impact</span>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mt-2 mb-6 font-heading">
+                Real Change, <br />
+                <span className="text-primary">Measurable Results</span>
+              </h2>
+              <p className="text-lg text-secondary mb-8 leading-relaxed">
+                We believe in the power of data to drive social good. Every dollar donated is tracked, ensuring accountability and maximizing the impact on the ground.
               </p>
-              <div className="h-48 bg-indigo-50 rounded-xl flex items-center justify-center">
-                <span className="text-gray-500">World Map Visualization</span>
-              </div>
-            </div>
-            <div className="bg-white rounded-3xl shadow-xl p-8">
-              <div className="flex items-center mb-6">
-                <div className="bg-indigo-100 p-3 rounded-full mr-4">
-                  <ChartBarIcon className="w-8 h-8 text-[#0B8B68]" />
-                </div>
-                <h3 className="text-2xl font-bold text-gray-900">By The Numbers</h3>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+              
+              <div className="grid grid-cols-2 gap-6">
                 {[
-                  { value: '95%', label: 'Funds to causes' },
-                  { value: '4.8★', label: 'Donor satisfaction' },
-                  { value: '24h', label: 'Verification time' },
-                  { value: '10K+', label: 'Lives impacted' },
-                ].map((stat, index) => (
-                  <div key={index} className="bg-indigo-50 p-4 rounded-lg text-center">
-                    <div className="text-2xl font-bold text-[#0B8B68]">{stat.value}</div>
-                    <div className="text-sm text-gray-600">{stat.label}</div>
+                  { icon: GlobeAltIcon, label: "Countries Reached", value: "12" },
+                  { icon: HandRaisedIcon, label: "Volunteers", value: "2,500+" },
+                  { icon: ChartBarIcon, label: "Success Rate", value: "98%" },
+                  { icon: SparklesIcon, label: "Lives Touched", value: "100K+" },
+                ].map((stat, i) => (
+                  <div key={i} className="flex items-start space-x-4 p-4 rounded-xl bg-gray-50 hover:bg-indigo-50/50 transition-colors">
+                    <stat.icon className="w-8 h-8 text-primary flex-shrink-0" />
+                    <div>
+                      <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+                      <div className="text-sm text-gray-500">{stat.label}</div>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
+            <div className="relative">
+              <div className="absolute -inset-4 bg-primary/10 rounded-full blur-3xl opacity-30"></div>
+              <img 
+                src="https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" 
+                alt="Impact Map" 
+                className="relative rounded-2xl shadow-2xl w-full object-cover"
+              />
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* Testimonials Section */}
-        <div className="mb-20">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">What People Say</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Hear from our donors and recipients about their experiences
-            </p>
+      {/* Values / How It Works */}
+      <div className="py-24 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4 font-heading">How We Make a Difference</h2>
+            <p className="text-lg text-secondary">Our transparent process ensures that your generosity reaches those who need it most, efficiently and effectively.</p>
           </div>
+
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                quote: "As a small business, this platform lets us give back while getting visibility we couldn't afford otherwise.",
-                name: "Jamie Rivera",
-                role: "Small Business Owner"
+                title: "Identify & Verify",
+                desc: "We work with local partners to identify genuine cases and verify every recipient's background.",
+                icon: ShieldCheckIcon,
+                step: "01"
               },
               {
-                quote: "The transparency is unmatched. I can see exactly where my donation went and the impact it made.",
-                name: "Dr. Alan Park",
-                role: "Regular Donor"
+                title: "Connect & Fund",
+                desc: "Donors browse verified profiles and contribute directly. No middlemen, no hidden fees.",
+                icon: HeartIcon,
+                step: "02"
               },
               {
-                quote: "This support helped my family through our toughest time. We're forever grateful.",
-                name: "Maria Gonzalez",
-                role: "Recipient"
+                title: "Report & Sustain",
+                desc: "We provide detailed impact reports and ensure long-term sustainability for beneficiaries.",
+                icon: ChartBarIcon,
+                step: "03"
               }
-            ].map((testimonial, index) => (
-              <div key={index} className="bg-white rounded-2xl shadow-lg p-8">
-                <div className="mb-6">
-                  <div className="text-[#0B8B68] text-4xl leading-none">"</div>
-                  <p className="text-gray-600 italic">{testimonial.quote}</p>
+            ].map((item, idx) => (
+              <div key={idx} className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
+                <div className="absolute top-0 right-0 p-4 opacity-10 text-6xl font-bold font-heading text-primary group-hover:opacity-20 transition-opacity">
+                  {item.step}
                 </div>
-                <div className="flex items-center">
-                  <div className="bg-indigo-100 w-12 h-12 rounded-full mr-4"></div>
-                  <div>
-                    <div className="font-bold text-gray-900">{testimonial.name}</div>
-                    <div className="text-sm text-gray-600">{testimonial.role}</div>
-                  </div>
+                <div className="w-14 h-14 bg-indigo-50 rounded-xl flex items-center justify-center mb-6 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+                  <item.icon className="w-7 h-7" />
                 </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">{item.title}</h3>
+                <p className="text-secondary leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
+      </div>
 
-        {/* How It Works Section - Enhanced */}
-        <div className="mb-20">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">How It Works</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Our simple three-step process makes giving rewarding for everyone
-            </p>
-          </div>
-          <div className="relative">
-            <div className="hidden md:block absolute top-1/2 left-0 right-0 h-1 bg-indigo-100 transform -translate-y-1/2"></div>
-            <div className="grid md:grid-cols-3 gap-8 relative">
-              {[
-                {
-                  icon: LightBulbIcon,
-                  title: "1. Donate & Advertise",
-                  description: "Contribute to a cause and post your message that appears on our platform",
-                  color: "bg-indigo-100 text-[#0B8B68]"
-                },
-                {
-                  icon: HeartIcon,
-                  title: "2. Funds Reach the Needy",
-                  description: "Your donation goes directly to verified individuals through our transparent process",
-                  color: "bg-pink-100 text-[#0B8B68]"
-                },
-                {
-                  icon: UsersIcon,
-                  title: "3. Community Engagement",
-                  description: "Visitors see your ad, learn about the cause, and can join the movement",
-                  color: "bg-blue-100 text-[#0B8B68]"
-                }
-              ].map((step, index) => (
-                <div key={index} className="bg-white rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-shadow">
-                  <div className={`${step.color} w-14 h-14 rounded-full flex items-center justify-center mb-6 mx-auto`}>
-                    <step.icon className="w-6 h-6" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-center mb-3">{step.title}</h3>
-                  <p className="text-gray-600 text-center">{step.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* CTA Section - Enhanced */}
-        <div className="bg-[#0B8B68] rounded-3xl p-12 text-white text-center">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Make an Impact?</h2>
-            <p className="text-xl text-indigo-100 mb-8">
-              Join thousands of donors and businesses creating real change while growing their visibility
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <button className="bg-white text-[#0B8B68] px-8 py-4 rounded-lg font-bold hover:bg-gray-100 transition-colors flex items-center justify-center">
-                Start Donating <ArrowLongRightIcon className="w-5 h-5 ml-2" />
-              </button>
-              <button className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg font-bold hover:bg-white hover:text-[#0B8B68] transition-colors">
-                Learn More
-              </button>
+      {/* CTA Section */}
+      <div className="bg-white py-16">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-primary rounded-3xl p-12 md:p-16 text-center text-white relative overflow-hidden shadow-2xl">
+            <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+            <div className="relative z-10">
+              <h2 className="text-3xl md:text-5xl font-bold mb-6 font-heading">Be the Change You Want to See</h2>
+              <p className="text-xl text-indigo-100 mb-10 max-w-2xl mx-auto">
+                Join a community of changemakers. Whether you donate, volunteer, or spread the word, your action matters.
+              </p>
+              <div className="flex flex-col sm:flex-row justify-center gap-4">
+                <Link to="/receivers" className="bg-white text-primary px-8 py-4 rounded-xl font-bold hover:bg-indigo-50 transition-colors shadow-lg flex items-center justify-center">
+                  Start Donating <ArrowLongRightIcon className="w-5 h-5 ml-2" />
+                </Link>
+                <Link to="/contact" className="bg-primary-dark border border-white/30 text-white px-8 py-4 rounded-xl font-bold hover:bg-primary-dark/80 transition-colors">
+                  Partner With Us
+                </Link>
+              </div>
             </div>
           </div>
         </div>

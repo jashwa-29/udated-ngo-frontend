@@ -30,7 +30,7 @@ const DonationModal = ({ isOpen, onClose, onSubmit }) => {
         contact: '',
       },
       theme: {
-        color: '#0B8B68',
+        color: '#4D9186',
       },
     };
 
@@ -52,7 +52,7 @@ const DonationModal = ({ isOpen, onClose, onSubmit }) => {
           />
           <button
             type="submit"
-            className="bg-[#0B8B68] text-white px-4 py-2 rounded hover:bg-[#097256] w-full"
+            className="bg-[#4D9186] text-white px-4 py-2 rounded hover:bg-[#097256] w-full"
           >
             Donate with Razorpay
           </button>

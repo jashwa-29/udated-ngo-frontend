@@ -240,7 +240,7 @@ const RecipientsRequestForm = () => {
       return <span className="text-sm text-red-500">{error}</span>;
     }
     return file ? (
-      <span className="text-sm text-gray-600">{file.name}</span>
+      <span className="text-sm text-gray-900 font-medium truncate max-w-[200px]">{file.name}</span>
     ) : (
       <span className="text-sm text-gray-400">No file chosen</span>
     );
@@ -251,8 +251,59 @@ const RecipientsRequestForm = () => {
     return touched[fieldName] && errors[fieldName];
   };
 
+  const InputField = ({ label, name, type = "text", required = false, ...props }) => (
+    <div className="mb-4">
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
+      <input
+        type={type}
+        name={name}
+        className={`w-full px-4 py-3 rounded-lg border ${
+          shouldShowError(name) ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:ring-primary/20 focus:border-primary'
+        } focus:outline-none focus:ring-4 transition-all duration-200 bg-gray-50 focus:bg-white`}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        {...props}
+      />
+      {shouldShowError(name) && <p className="text-red-500 text-xs mt-1">{errors[name]}</p>}
+    </div>
+  );
+
+  const FileInput = ({ label, name, required = false, accept }) => (
+    <div className="mb-4">
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
+      <div className={`relative border-2 border-dashed rounded-lg p-4 transition-colors ${
+        shouldShowError(name) ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-primary bg-gray-50 hover:bg-white'
+      }`}>
+        <input
+          type="file"
+          name={name}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          accept={accept}
+          required={required}
+        />
+        <div className="flex flex-col items-center justify-center text-center">
+          <svg className="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          </svg>
+          <p className="text-sm text-gray-600">
+            <span className="font-medium text-primary">Click to upload</span> or drag and drop
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            {getFileInputLabel(formData[name], shouldShowError(name) && errors[name])}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="max-w-7xl mx-auto my-11 bg-white p-5 md:p-0">
+    <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
       {/* Authentication Modal */}
       {showAuthModal && (
         <ReceiverLoginModal 
@@ -262,218 +313,160 @@ const RecipientsRequestForm = () => {
           onSuccess={() => setIsLoggedIn(true)}
         />
       )}
-
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Recipients Request Form</h1>
       
       {/* Status Message */}
       {submitStatus.message && (
-        <div className={`mb-6 p-4 rounded-md ${
+        <div className={`p-4 ${
           submitStatus.success 
-            ? 'bg-green-100 text-green-700' 
-            : 'bg-red-100 text-red-700'
+            ? 'bg-green-50 text-green-700 border-b border-green-100' 
+            : 'bg-red-50 text-red-700 border-b border-red-100'
         }`}>
-          {submitStatus.message}
+          <div className="flex items-center justify-center">
+            {submitStatus.success ? (
+              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/></svg>
+            ) : (
+              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/></svg>
+            )}
+            {submitStatus.message}
+          </div>
         </div>
       )}
       
-      <form onSubmit={handleSubmit} className='p-6 rounded-lg border border-gray-200 shadow-md'>
-        {/* Patient Name & Age */}
-        <div className="grid md:grid-cols-2 gap-6 mb-4">
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Patient Name*</label>
-            <input
-              type="text"
-              name="patientName"
-              value={formData.patientName}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              className={`w-full px-4 py-4 border ${shouldShowError('patientName') ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-green-500`}
-              required
+      <form onSubmit={handleSubmit} className="p-8 md:p-10">
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Left Column */}
+          <div className="space-y-2">
+            <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4 border-b pb-2">Personal Details</h4>
+            
+            <InputField 
+              label="Patient Name" 
+              name="patientName" 
+              value={formData.patientName} 
+              required 
+              placeholder="Full Name"
             />
-            {shouldShowError('patientName') && <p className="text-red-500 text-sm mt-1">{errors.patientName}</p>}
-          </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Age*</label>
-            <input
-              type="number"
-              name="age"
-              value={formData.age}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              min="1"
-              max="100"
-              className={`w-full px-4 py-4 border ${shouldShowError('age') ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-green-500`}
-              required
-            />
-            {shouldShowError('age') && <p className="text-red-500 text-sm mt-1">{errors.age}</p>}
-          </div>
-        </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <InputField 
+                label="Age" 
+                name="age" 
+                type="number" 
+                value={formData.age} 
+                required 
+                min="1" 
+                max="100"
+              />
+              
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Gender <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  className={`w-full px-4 py-3 rounded-lg border ${
+                    shouldShowError('gender') ? 'border-red-500' : 'border-gray-200'
+                  } focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all bg-gray-50 focus:bg-white`}
+                  required
+                >
+                  <option value="">Select</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+                {shouldShowError('gender') && <p className="text-red-500 text-xs mt-1">{errors.gender}</p>}
+              </div>
+            </div>
 
-        {/* Gender & Phone */}
-        <div className="grid md:grid-cols-2 gap-6 mb-4">
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Gender*</label>
-            <select
-              name="gender"
-              value={formData.gender}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              className={`w-full px-4 py-4 border ${shouldShowError('gender') ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-green-500`}
-              required
-            >
-              <option value="">Select</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </select>
-            {shouldShowError('gender') && <p className="text-red-500 text-sm mt-1">{errors.gender}</p>}
-          </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Phone Number*</label>
-            <input
-              type="tel"
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              pattern="[0-9]{10}"
+            <InputField 
+              label="Phone Number" 
+              name="phoneNumber" 
+              type="tel" 
+              value={formData.phoneNumber} 
+              required 
+              placeholder="10-digit number"
               maxLength="10"
-              className={`w-full px-4 py-4 border ${shouldShowError('phoneNumber') ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-green-500`}
-              required
             />
-            {shouldShowError('phoneNumber') && <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>}
+          </div>
+
+          {/* Right Column */}
+          <div className="space-y-2">
+            <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4 border-b pb-2">Medical Details</h4>
+            
+            <InputField 
+              label="Medical Problem" 
+              name="medicalProblem" 
+              value={formData.medicalProblem} 
+              placeholder="Brief description"
+            />
+            
+            <InputField 
+              label="Amount Required (₹)" 
+              name="donationAmount" 
+              value={formData.donationAmount} 
+              placeholder="e.g. 50000"
+            />
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+              <textarea
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
+                rows={4}
+                placeholder="Tell us more about your situation..."
+                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all bg-gray-50 focus:bg-white resize-none"
+              />
+            </div>
           </div>
         </div>
 
-        {/* Medical Problem & Donation */}
-        <div className="grid md:grid-cols-2 gap-6 mb-4">
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Medical Problem</label>
-            <input
-              type="text"
-              name="medicalProblem"
-              value={formData.medicalProblem}
-              onChange={handleChange}
-              className="w-full px-4 py-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+        {/* File Uploads Section */}
+        <div className="mt-8">
+          <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4 border-b pb-2">Documents</h4>
+          <div className="grid md:grid-cols-3 gap-6">
+            <FileInput 
+              label="Medical Reports" 
+              name="medicalReports" 
+              required 
+              accept=".pdf,.jpg,.jpeg,.png" 
             />
-          </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Donation Amount (₹)</label>
-            <input
-              type="text"
-              name="donationAmount"
-              value={formData.donationAmount}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              pattern="^\d+(\.\d{1,2})?$"
-              className={`w-full px-4 py-4 border ${shouldShowError('donationAmount') ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-green-500`}
-              placeholder="e.g. 5000 or 5000.50"
+            <FileInput 
+              label="ID Proof" 
+              name="identificationProof" 
+              required 
+              accept=".pdf,.jpg,.jpeg,.png" 
             />
-            {shouldShowError('donationAmount') && <p className="text-red-500 text-sm mt-1">{errors.donationAmount}</p>}
-          </div>
-        </div>
-
-        {/* Message Box */}
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Message</label>
-          <textarea
-            name="message"
-            value={formData.message}
-            onChange={handleChange}
-            rows={5}
-            placeholder="Write your message here..."
-            className="w-full px-4 py-4 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
-        </div>
-
-        {/* File Uploads */}
-        <div className="grid md:grid-cols-3 gap-6 mb-6">
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Medical Reports/Diagnosis*</label>
-            <div className="flex flex-col">
-              <div className="flex items-center">
-                <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md border border-gray-300 transition">
-                  <span>Choose File</span>
-                  <input
-                    type="file"
-                    name="medicalReports"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    className="hidden"
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    required
-                  />
-                </label>
-                <span className="ml-2 text-sm">
-                  {getFileInputLabel(formData.medicalReports, shouldShowError('medicalReports') && errors.medicalReports)}
-                </span>
-              </div>
-              <p className="text-gray-500 text-xs mt-1">Max 2MB (PDF, JPG, PNG)</p>
-              {shouldShowError('medicalReports') && <p className="text-red-500 text-sm mt-1">{errors.medicalReports}</p>}
-            </div>
-          </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Identification Proof*</label>
-            <div className="flex flex-col">
-              <div className="flex items-center">
-                <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md border border-gray-300 transition">
-                  <span>Choose File</span>
-                  <input
-                    type="file"
-                    name="identificationProof"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    className="hidden"
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    required
-                  />
-                </label>
-                <span className="ml-2 text-sm">
-                  {getFileInputLabel(formData.identificationProof, shouldShowError('identificationProof') && errors.identificationProof)}
-                </span>
-              </div>
-              <p className="text-gray-500 text-xs mt-1">Max 2MB (PDF, JPG, PNG)</p>
-              {shouldShowError('identificationProof') && <p className="text-red-500 text-sm mt-1">{errors.identificationProof}</p>}
-            </div>
-          </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Patient Image (Optional)</label>
-            <div className="flex flex-col">
-              <div className="flex items-center">
-                <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md border border-gray-300 transition">
-                  <span>Choose File</span>
-                  <input
-                    type="file"
-                    name="applicationFile"
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    className="hidden"
-                    accept=".jpg,.jpeg,.png"
-                  />
-                </label>
-                <span className="ml-2 text-sm">
-                  {getFileInputLabel(formData.applicationFile, shouldShowError('applicationFile') && errors.applicationFile)}
-                </span>
-              </div>
-              <p className="text-gray-500 text-xs mt-1">Max 2MB (JPG, PNG)</p>
-              {shouldShowError('applicationFile') && <p className="text-red-500 text-sm mt-1">{errors.applicationFile}</p>}
-            </div>
+            <FileInput 
+              label="Patient Photo (Optional)" 
+              name="applicationFile" 
+              accept=".jpg,.jpeg,.png" 
+            />
           </div>
         </div>
 
         {/* Submit Button */}
-        <div className="text-center pt-6">
+        <div className="mt-8 pt-6 border-t border-gray-100 flex flex-col items-center">
           <button
             type="submit"
-            className="hover:text-[#0B8B68] transition duration-300 bg-[#0B8B68] hover:bg-white border border-white hover:border-[#0B8B68] text-white rounded-[6px] w-1/2 font-bold py-3 px-6 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full md:w-1/3 py-4 px-8 bg-primary text-white font-bold rounded-xl shadow-lg hover:bg-primary-dark hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Submitting...' : 'Submit Request'}
+            {isSubmitting ? (
+              <span className="flex items-center justify-center">
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Processing...
+              </span>
+            ) : 'Submit Request'}
           </button>
-          <p className="mt-4 text-green-700">
-            We will review your request and contact you.
+          <p className="mt-4 text-sm text-gray-500">
+            By submitting, you agree to our terms and conditions.
           </p>
-          <p className="text-gray-500 text-sm mt-2">* indicates required fields</p>
         </div>
       </form>
     </div>

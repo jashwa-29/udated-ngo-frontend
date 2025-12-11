@@ -37,7 +37,7 @@ const DonorList = () => {
 
       {loading ? (
            <div className="flex justify-center items-center h-40">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0B8B68]"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#4D9186]"></div>
         </div>
       ) : error ? (
         <div className="text-center text-red-600 py-10">{error}</div>
@@ -82,7 +82,7 @@ const DonorList = () => {
                 <div className="flex items-center justify-center">
                   <Link
                     to={`/admin/total-donors/donor/${donor.id || donor._id}`}
-                    className="bg-[#0B8B68] text-white px-4 py-2 rounded hover:bg-gray-800"
+                    className="bg-[#4D9186] text-white px-4 py-2 rounded hover:bg-gray-800"
                   >
                     View Details
                   </Link>

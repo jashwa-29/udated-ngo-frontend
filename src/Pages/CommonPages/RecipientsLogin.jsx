@@ -2,15 +2,64 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserLogin } from '../../API/LoginAPI/UserLogin';
 import { userRegister } from '../../API/LoginAPI/UserRegister';
+import { SendForgotPasswordOTP, ResetPassword } from '../../API/LoginAPI/ForgotPassword'; // Import the forgot password APIs
 
 const RecipientsLogin = ({ requests, setRequests }) => {
   const [loading, setLoading] = useState(false);
   const [navigating, setNavigating] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
   const [isLogin, setIsLogin] = useState(true);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotPasswordStep, setForgotPasswordStep] = useState(1); // 1: Send OTP, 2: Reset Password
   const navigate = useNavigate();
 
   console.log(requests);
+
+  // Forgot Password Handler
+  const handleForgotPassword = async (email) => {
+    setLoading(true);
+    setMessage({ text: "", type: "" });
+
+    try {
+      const result = await SendForgotPasswordOTP({ email });
+      
+      if (result.success) {
+        setMessage({ text: result.message, type: "success" });
+        setForgotPasswordStep(2); // Move to OTP verification step
+      } else {
+        setMessage({ text: result.message, type: "error" });
+      }
+    } catch (error) {
+      setMessage({ text: "Failed to send OTP. Please try again.", type: "error" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Reset Password Handler
+  const handleResetPassword = async (data) => {
+    setLoading(true);
+    setMessage({ text: "", type: "" });
+
+    try {
+      const result = await ResetPassword(data);
+      
+      if (result.success) {
+        setMessage({ text: result.message, type: "success" });
+        setTimeout(() => {
+          setShowForgotPassword(false);
+          setForgotPasswordStep(1);
+          setIsLogin(true);
+        }, 2000);
+      } else {
+        setMessage({ text: result.message, type: "error" });
+      }
+    } catch (error) {
+      setMessage({ text: "Failed to reset password. Please try again.", type: "error" });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogin = async ({ email, password }) => {
     setLoading(true);
@@ -108,15 +157,38 @@ const RecipientsLogin = ({ requests, setRequests }) => {
     }
   };
 
-  const switchToLogin = () => { setIsLogin(true); window.scrollTo(0, 0); };
-  const switchToRegister = () => { setIsLogin(false); window.scrollTo(0, 0); };
+  const switchToLogin = () => { 
+    setIsLogin(true); 
+    setShowForgotPassword(false);
+    setForgotPasswordStep(1);
+    window.scrollTo(0, 0); 
+  };
+  
+  const switchToRegister = () => { 
+    setIsLogin(false); 
+    setShowForgotPassword(false);
+    setForgotPasswordStep(1);
+    window.scrollTo(0, 0); 
+  };
+
+  const showForgotPasswordForm = () => {
+    setShowForgotPassword(true);
+    setForgotPasswordStep(1);
+    setMessage({ text: "", type: "" });
+  };
+
+  const backToLogin = () => {
+    setShowForgotPassword(false);
+    setForgotPasswordStep(1);
+    setMessage({ text: "", type: "" });
+  };
 
   if (navigating) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
         <div className="flex items-center space-x-3">
           <svg
-            className="animate-spin h-6 w-6 text-[#0B8B68]"
+            className="animate-spin h-6 w-6 text-[#4D9186]"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -135,7 +207,7 @@ const RecipientsLogin = ({ requests, setRequests }) => {
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             />
           </svg>
-          <span className="text-[#0B8B68] font-semibold">Redirecting...</span>
+          <span className="text-[#4D9186] font-semibold">Redirecting...</span>
         </div>
       </div>
     );
@@ -145,7 +217,10 @@ const RecipientsLogin = ({ requests, setRequests }) => {
     <div className="my-16 flex items-center justify-center">
       <div className="bg-white/40 p-8 rounded shadow-md w-full max-w-md">
         <h2 className="text-center text-2xl font-semibold text-gray-900 mb-6">
-          {isLogin ? "Recipient Login" : "Recipient Registration"}
+          {showForgotPassword 
+            ? (forgotPasswordStep === 1 ? "Forgot Password" : "Reset Password")
+            : (isLogin ? "Recipient Login" : "Recipient Registration")
+          }
         </h2>
 
         {message.text && (
@@ -160,11 +235,20 @@ const RecipientsLogin = ({ requests, setRequests }) => {
           </div>
         )}
 
-        {isLogin ? (
+        {showForgotPassword ? (
+          <ForgotPasswordForm
+            step={forgotPasswordStep}
+            handleSendOTP={handleForgotPassword}
+            handleResetPassword={handleResetPassword}
+            loading={loading}
+            backToLogin={backToLogin}
+          />
+        ) : isLogin ? (
           <LoginForm
             handleSubmit={handleLogin}
             loading={loading}
             switchToRegister={switchToRegister}
+            showForgotPassword={showForgotPasswordForm}
           />
         ) : (
           <RegisterForm
@@ -178,7 +262,254 @@ const RecipientsLogin = ({ requests, setRequests }) => {
   );
 };
 
-const LoginForm = ({ handleSubmit, loading, switchToRegister }) => {
+// Forgot Password Form Component
+const ForgotPasswordForm = ({ step, handleSendOTP, handleResetPassword, loading, backToLogin }) => {
+  const [formData, setFormData] = useState({
+    email: "",
+    otp: "",
+    newPassword: "",
+    confirmPassword: ""
+  });
+  const [errors, setErrors] = useState({
+    email: "",
+    otp: "",
+    newPassword: "",
+    confirmPassword: ""
+  });
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) return "Email is required";
+    if (!emailRegex.test(email)) return "Please enter a valid email address";
+    return "";
+  };
+
+  const validateOTP = (otp) => {
+    if (!otp) return "OTP is required";
+    if (otp.length !== 6) return "OTP must be 6 digits";
+    return "";
+  };
+
+  const validatePassword = (password) => {
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!password) return "Password is required";
+    if (!passwordRegex.test(password)) return "Must be at least 8 characters with uppercase, lowercase, number, and special character";
+    return "";
+  };
+
+  const validateConfirmPassword = (confirmPassword, password) => {
+    if (!confirmPassword) return "Please confirm your password";
+    if (confirmPassword !== password) return "Passwords do not match";
+    return "";
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Validate field in real-time
+    let error = "";
+    switch (name) {
+      case "email":
+        error = validateEmail(value);
+        break;
+      case "otp":
+        error = validateOTP(value);
+        break;
+      case "newPassword":
+        error = validatePassword(value);
+        break;
+      case "confirmPassword":
+        error = validateConfirmPassword(value, formData.newPassword);
+        break;
+      default:
+        break;
+    }
+    setErrors((prev) => ({ ...prev, [name]: error }));
+  };
+
+  const handleSendOTPSubmit = (e) => {
+    e.preventDefault();
+    const emailError = validateEmail(formData.email);
+    
+    if (emailError) {
+      setErrors({ email: emailError });
+      return;
+    }
+    
+    handleSendOTP(formData.email);
+  };
+
+  const handleResetPasswordSubmit = (e) => {
+    e.preventDefault();
+    
+    const otpError = validateOTP(formData.otp);
+    const passwordError = validatePassword(formData.newPassword);
+    const confirmError = validateConfirmPassword(formData.confirmPassword, formData.newPassword);
+    
+    if (otpError || passwordError || confirmError) {
+      setErrors({
+        otp: otpError,
+        newPassword: passwordError,
+        confirmPassword: confirmError
+      });
+      return;
+    }
+    
+    handleResetPassword({
+      email: formData.email,
+      otp: formData.otp,
+      newPassword: formData.newPassword
+    });
+  };
+
+  const isStep1Valid = formData.email && !errors.email;
+  const isStep2Valid = formData.otp && formData.newPassword && formData.confirmPassword && 
+                      !errors.otp && !errors.newPassword && !errors.confirmPassword;
+
+  return (
+    <form className="space-y-6" onSubmit={step === 1 ? handleSendOTPSubmit : handleResetPasswordSubmit}>
+      {step === 1 ? (
+        <>
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-800">
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              id="email"
+              value={formData.email}
+              onChange={handleChange}
+              className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#4D9186] focus:outline-none ${
+                errors.email ? "border-red-500" : "border-gray-300"
+              }`}
+              placeholder="Enter your registered email"
+            />
+            {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading || !isStep1Valid}
+            className={`w-full bg-[#4D9186] text-white py-2 rounded-md transition ${
+              loading || !isStep1Valid ? "opacity-70 cursor-not-allowed" : ""
+            }`}
+          >
+            {loading ? (
+              <span className="flex items-center justify-center">
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Sending OTP...
+              </span>
+            ) : (
+              "Send OTP"
+            )}
+          </button>
+        </>
+      ) : (
+        <>
+          <div className="bg-blue-50 p-3 rounded-md mb-4">
+            <p className="text-sm text-blue-700">
+              OTP sent to: <strong>{formData.email}</strong>
+            </p>
+          </div>
+
+          <div>
+            <label htmlFor="otp" className="block text-sm font-medium text-gray-800">
+              OTP
+            </label>
+            <input
+              type="text"
+              name="otp"
+              id="otp"
+              value={formData.otp}
+              onChange={handleChange}
+              maxLength={6}
+              className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#4D9186] focus:outline-none ${
+                errors.otp ? "border-red-500" : "border-gray-300"
+              }`}
+              placeholder="Enter 6-digit OTP"
+            />
+            {errors.otp && <p className="mt-1 text-sm text-red-600">{errors.otp}</p>}
+          </div>
+
+          <div>
+            <label htmlFor="newPassword" className="block text-sm font-medium text-gray-800">
+              New Password
+            </label>
+            <input
+              type="password"
+              name="newPassword"
+              id="newPassword"
+              value={formData.newPassword}
+              onChange={handleChange}
+              className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#4D9186] focus:outline-none ${
+                errors.newPassword ? "border-red-500" : "border-gray-300"
+              }`}
+            />
+            {errors.newPassword && <p className="mt-1 text-sm text-red-600">{errors.newPassword}</p>}
+            <div className="text-xs text-gray-500 mt-1">
+              Must be at least 8 characters with uppercase, lowercase, number, and special character
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-800">
+              Confirm New Password
+            </label>
+            <input
+              type="password"
+              name="confirmPassword"
+              id="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#4D9186] focus:outline-none ${
+                errors.confirmPassword ? "border-red-500" : "border-gray-300"
+              }`}
+            />
+            {errors.confirmPassword && <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>}
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading || !isStep2Valid}
+            className={`w-full bg-[#4D9186] text-white py-2 rounded-md transition ${
+              loading || !isStep2Valid ? "opacity-70 cursor-not-allowed" : ""
+            }`}
+          >
+            {loading ? (
+              <span className="flex items-center justify-center">
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Resetting Password...
+              </span>
+            ) : (
+              "Reset Password"
+            )}
+          </button>
+        </>
+      )}
+
+      <div className="text-center mt-4">
+        <button
+          type="button"
+          onClick={backToLogin}
+          className="text-black font-medium hover:underline text-sm"
+        >
+          Back to Login
+        </button>
+      </div>
+    </form>
+  );
+};
+
+// Updated LoginForm to include Forgot Password link
+const LoginForm = ({ handleSubmit, loading, switchToRegister, showForgotPassword }) => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -244,7 +575,7 @@ const LoginForm = ({ handleSubmit, loading, switchToRegister }) => {
           id="email"
           value={formData.email}
           onChange={handleChange}
-          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#0B8B68] focus:outline-none ${
+          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#4D9186] focus:outline-none ${
             errors.email ? "border-red-500" : "border-gray-300"
           }`}
         />
@@ -261,17 +592,39 @@ const LoginForm = ({ handleSubmit, loading, switchToRegister }) => {
           id="password"
           value={formData.password}
           onChange={handleChange}
-          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#0B8B68] focus:outline-none ${
+          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#4D9186] focus:outline-none ${
             errors.password ? "border-red-500" : "border-gray-300"
           }`}
         />
         {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
       </div>
 
+      <div className="flex justify-between items-center">
+        <div className=" text-sm">
+        <span>
+          Don't have an account?{" "}
+          <button
+            type="button"
+            onClick={switchToRegister}
+            className="text-black font-medium hover:underline"
+          >
+            Register
+          </button>
+        </span>
+      </div>
+        <button
+          type="button"
+          onClick={showForgotPassword}
+          className="text-sm text-black font-medium hover:underline"
+        >
+          Forgot Password?
+        </button>
+      </div>
+
       <button
         type="submit"
         disabled={loading || !isFormValid}
-        className={`w-full bg-[#0B8B68] text-white py-2 rounded-md transition ${
+        className={`w-full bg-[#4D9186] text-white py-2 rounded-md transition ${
           loading || !isFormValid ? "opacity-70 cursor-not-allowed" : ""
         }`}
       >
@@ -304,22 +657,12 @@ const LoginForm = ({ handleSubmit, loading, switchToRegister }) => {
         )}
       </button>
 
-      <div className="text-center mt-6 text-sm">
-        <span>
-          Don't have an account?{" "}
-          <button
-            type="button"
-            onClick={switchToRegister}
-            className="text-black font-medium hover:underline"
-          >
-            Register
-          </button>
-        </span>
-      </div>
+      
     </form>
   );
 };
 
+// RegisterForm remains exactly the same as your original code
 const RegisterForm = ({ handleSubmit, loading, switchToLogin }) => {
   const [formData, setFormData] = useState({
     name: "",
@@ -497,7 +840,7 @@ const RegisterForm = ({ handleSubmit, loading, switchToLogin }) => {
           value={formData.name}
           onChange={handleChange}
           onBlur={handleBlur}
-          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#0B8B68] focus:outline-none ${
+          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#4D9186] focus:outline-none ${
             errors.name ? "border-red-500" : "border-gray-300"
           }`}
         />
@@ -515,7 +858,7 @@ const RegisterForm = ({ handleSubmit, loading, switchToLogin }) => {
           value={formData.email}
           onChange={handleChange}
           onBlur={handleBlur}
-          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#0B8B68] focus:outline-none ${
+          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#4D9186] focus:outline-none ${
             errors.email ? "border-red-500" : "border-gray-300"
           }`}
         />
@@ -533,7 +876,7 @@ const RegisterForm = ({ handleSubmit, loading, switchToLogin }) => {
           value={formData.phone}
           onChange={handleChange}
           onBlur={handleBlur}
-          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#0B8B68] focus:outline-none ${
+          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#4D9186] focus:outline-none ${
             errors.phone ? "border-red-500" : "border-gray-300"
           }`}
         />
@@ -551,7 +894,7 @@ const RegisterForm = ({ handleSubmit, loading, switchToLogin }) => {
           value={formData.address}
           onChange={handleChange}
           onBlur={handleBlur}
-          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#0B8B68] focus:outline-none ${
+          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#4D9186] focus:outline-none ${
             errors.address ? "border-red-500" : "border-gray-300"
           }`}
         />
@@ -569,7 +912,7 @@ const RegisterForm = ({ handleSubmit, loading, switchToLogin }) => {
           value={formData.password}
           onChange={handleChange}
           onBlur={handleBlur}
-          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#0B8B68] focus:outline-none ${
+          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#4D9186] focus:outline-none ${
             errors.password ? "border-red-500" : "border-gray-300"
           }`}
         />
@@ -590,7 +933,7 @@ const RegisterForm = ({ handleSubmit, loading, switchToLogin }) => {
           value={formData.confirmPassword}
           onChange={handleChange}
           onBlur={handleBlur}
-          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#0B8B68] focus:outline-none ${
+          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#4D9186] focus:outline-none ${
             errors.confirmPassword ? "border-red-500" : "border-gray-300"
           }`}
         />
@@ -600,7 +943,7 @@ const RegisterForm = ({ handleSubmit, loading, switchToLogin }) => {
       <button
         type="submit"
         disabled={loading || !isFormValid}
-        className={`w-full bg-[#0B8B68] text-white py-2 rounded-md transition ${
+        className={`w-full bg-[#4D9186] text-white py-2 rounded-md transition ${
           loading || !isFormValid ? "opacity-70 cursor-not-allowed" : ""
         }`}
       >
@@ -617,6 +960,8 @@ const RegisterForm = ({ handleSubmit, loading, switchToLogin }) => {
         )}
       </button>
 
+      
+
       <div className="text-center mt-6 text-sm">
         <span>
           Already have an account?{" "}
@@ -628,7 +973,7 @@ const RegisterForm = ({ handleSubmit, loading, switchToLogin }) => {
             Login
           </button>
         </span>
-      </div>
+      </div> 
     </form>
   );
 };

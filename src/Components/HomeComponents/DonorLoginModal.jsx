@@ -283,7 +283,7 @@ const LoginForm = ({ handleSubmit, loading, switchToRegister }) => {
           onChange={handleChange}
           onBlur={handleBlur}
           required
-          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#0B8B68] focus:outline-none ${
+          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#4D9186] focus:outline-none ${
             errors.email ? "border-red-500" : "border-gray-300"
           }`}
           placeholder="Enter your email"
@@ -305,7 +305,7 @@ const LoginForm = ({ handleSubmit, loading, switchToRegister }) => {
           onChange={handleChange}
           onBlur={handleBlur}
           required
-          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#0B8B68] focus:outline-none ${
+          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#4D9186] focus:outline-none ${
             errors.password ? "border-red-500" : "border-gray-300"
           }`}
           placeholder="Enter your password"
@@ -318,7 +318,7 @@ const LoginForm = ({ handleSubmit, loading, switchToRegister }) => {
       <button
         type="submit"
         disabled={loading}
-        className={`w-full bg-[#0B8B68] text-white py-2 rounded-md hover:bg-[#0B8B68] transition ${
+        className={`w-full bg-[#4D9186] text-white py-2 rounded-md hover:bg-[#4D9186] transition ${
           loading ? "opacity-70 cursor-not-allowed" : ""
         }`}
       >
@@ -502,7 +502,7 @@ const RegisterForm = ({ handleSubmit, loading, switchToLogin }) => {
           onChange={handleChange}
           onBlur={handleBlur}
           required
-          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#0B8B68] focus:outline-none ${
+          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#4D9186] focus:outline-none ${
             errors.name ? "border-red-500" : "border-gray-300"
           }`}
           placeholder="Enter your full name"
@@ -524,7 +524,7 @@ const RegisterForm = ({ handleSubmit, loading, switchToLogin }) => {
           onChange={handleChange}
           onBlur={handleBlur}
           required
-          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#0B8B68] focus:outline-none ${
+          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#4D9186] focus:outline-none ${
             errors.email ? "border-red-500" : "border-gray-300"
           }`}
           placeholder="Enter your email"
@@ -546,7 +546,7 @@ const RegisterForm = ({ handleSubmit, loading, switchToLogin }) => {
           onChange={handleChange}
           onBlur={handleBlur}
           required
-          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#0B8B68] focus:outline-none ${
+          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#4D9186] focus:outline-none ${
             errors.phone ? "border-red-500" : "border-gray-300"
           }`}
           placeholder="Enter your phone number"
@@ -568,7 +568,7 @@ const RegisterForm = ({ handleSubmit, loading, switchToLogin }) => {
           onChange={handleChange}
           onBlur={handleBlur}
           required
-          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#0B8B68] focus:outline-none ${
+          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#4D9186] focus:outline-none ${
             errors.address ? "border-red-500" : "border-gray-300"
           }`}
           placeholder="Enter your address"
@@ -590,7 +590,7 @@ const RegisterForm = ({ handleSubmit, loading, switchToLogin }) => {
           onChange={handleChange}
           onBlur={handleBlur}
           required
-          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#0B8B68] focus:outline-none ${
+          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#4D9186] focus:outline-none ${
             errors.password ? "border-red-500" : "border-gray-300"
           }`}
           placeholder="Create a password"
@@ -615,7 +615,7 @@ const RegisterForm = ({ handleSubmit, loading, switchToLogin }) => {
           onChange={handleChange}
           onBlur={handleBlur}
           required
-          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#0B8B68] focus:outline-none ${
+          className={`mt-1 w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-[#4D9186] focus:outline-none ${
             errors.confirmPassword ? "border-red-500" : "border-gray-300"
           }`}
           placeholder="Confirm your password"
@@ -628,7 +628,7 @@ const RegisterForm = ({ handleSubmit, loading, switchToLogin }) => {
       <button
         type="submit"
         disabled={loading}
-        className={`w-full bg-[#0B8B68] text-white py-2 rounded-md transition ${
+        className={`w-full bg-[#4D9186] text-white py-2 rounded-md transition ${
           loading ? "opacity-70 cursor-not-allowed" : ""
         }`}
       >

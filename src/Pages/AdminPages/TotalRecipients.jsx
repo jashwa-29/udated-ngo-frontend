@@ -52,7 +52,7 @@ const RecipientTable = ({ title, filterdata }) => {
       <div className="space-y-4">
         {loading ? (
            <div className="flex justify-center items-center h-40">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0B8B68]"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#4D9186]"></div>
         </div>
         ) : error ? (
           <div className="text-center py-10 text-red-600">{error}</div>
@@ -119,7 +119,7 @@ const RecipientTable = ({ title, filterdata }) => {
               <div>
                 <Link
                   to={`/admin/recipient/${item.id || item._id}`}
-                  className="bg-[#0B8B68] text-white px-4 py-2 text-sm rounded"
+                  className="bg-[#4D9186] text-white px-4 py-2 text-sm rounded"
                 >
                   View Donation Details
                 </Link>

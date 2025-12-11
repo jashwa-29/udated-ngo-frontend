@@ -405,7 +405,7 @@ const ReceiverLoginModal = ({ authMode, toggleAuthMode, setShowAuthModal }) => {
             <button
               type="submit"
               onClick={handleAuthSubmit}
-              className="px-4 py-2 bg-[#0B8B68] text-white rounded-md hover:bg-[#0a7a5d] disabled:opacity-50"
+              className="px-4 py-2 bg-[#4D9186] text-white rounded-md hover:bg-[#0a7a5d] disabled:opacity-50"
               disabled={isSubmitting}
             >
               {isSubmitting ? 'Processing...' : authMode === 'login' ? 'Login' : 'Register'}

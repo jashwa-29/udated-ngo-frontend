@@ -373,7 +373,7 @@ const MyDonationsDetail = () => {
         </div>
       </div>
 
-        <button className="bg-[#0B8B68] px-10 py-2.5 text-white text-base font-medium rounded" >Donate</button> 
+        <button className="bg-[#4D9186] px-10 py-2.5 text-white text-base font-medium rounded" >Donate</button> 
 
     </div>
   );

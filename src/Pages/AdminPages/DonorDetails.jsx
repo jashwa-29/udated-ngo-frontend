@@ -34,7 +34,7 @@ const DonorDetails = () => {
   }, [id]);
 
   if (loading) return <div className="flex justify-center items-center h-40">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0B8B68]"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#4D9186]"></div>
         </div>;
   if (error) return <div className="p-6 text-red-500">{error}</div>;
   if (!donor || donor.length === 0) return   <div className="text-center text-gray-500 py-10">

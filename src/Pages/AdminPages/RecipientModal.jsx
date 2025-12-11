@@ -87,7 +87,7 @@ const RecipientModal = ({ isOpen, onClose, title, filterdata }) => {
 
         {isLoading ? (
           <div className="flex justify-center items-center h-40">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0B8B68]"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#4D9186]"></div>
           </div>
         ) : error ? (
           <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
@@ -153,7 +153,7 @@ const RecipientModal = ({ isOpen, onClose, title, filterdata }) => {
                     <Link
                       to={`/admin/recipient/${item.id}`}
                       state={{ recipientData: item }}
-                      className="bg-[#0B8B68] hover:bg-[#0a7a5d] text-white px-4 py-2 text-sm rounded transition-colors"
+                      className="bg-[#4D9186] hover:bg-[#0a7a5d] text-white px-4 py-2 text-sm rounded transition-colors"
                     >
                       View Donation Details
                     </Link>

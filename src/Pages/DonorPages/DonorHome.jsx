@@ -142,8 +142,8 @@ const DonorHome = () => {
 
         {/* Controls Positioned Top-Right */}
         <div className="absolute top-10 right-4 z-10 flex gap-2">
-          <div className="swiper-button-prev !static !text-white !bg-[#0B8B68] hover:!bg-[#0B8B68] w-10 h-10 rounded-full flex p-5 items-center justify-center" />
-          <div className="swiper-button-next !static !text-white !bg-[#0B8B68] hover:!bg-[#0B8B68] w-10 h-10 rounded-full flex p-5 items-center justify-center" />
+          <div className="swiper-button-prev !static !text-white !bg-[#4D9186] hover:!bg-[#4D9186] w-10 h-10 rounded-full flex p-5 items-center justify-center" />
+          <div className="swiper-button-next !static !text-white !bg-[#4D9186] hover:!bg-[#4D9186] w-10 h-10 rounded-full flex p-5 items-center justify-center" />
         </div>
 
         {donationCards.length > 0 ? (
@@ -194,7 +194,7 @@ const DonorHome = () => {
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-1.5 mb-1">
                           <div
-                            className="bg-[#0B8B68] h-1.5 rounded-full"
+                            className="bg-[#4D9186] h-1.5 rounded-full"
                             style={{ width: `${progress.percentage}%` }}
                           ></div>
                         </div>
@@ -205,7 +205,7 @@ const DonorHome = () => {
                       </div>
                       <div className="flex justify-center">
                         <button
-                          className="mt-3 px-8 py-2.5 text-sm font-medium hover:text-[#0B8B68] transition duration-300 bg-[#0B8B68] hover:bg-white border border-white hover:border-[#0B8B68] text-white rounded-[6px]"
+                          className="mt-3 px-8 py-2.5 text-sm font-medium hover:text-[#4D9186] transition duration-300 bg-[#4D9186] hover:bg-white border border-white hover:border-[#4D9186] text-white rounded-[6px]"
                           onClick={() => handleDonateClick(card)}
                         >
                           Donate Now

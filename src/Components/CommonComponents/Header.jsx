@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import logo from '../../assets/ngo-logo.png';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useCurrency } from '../../context/CurrencyContext';
+import { ROLES } from '../../utils/constants';
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -9,6 +11,7 @@ const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userType, setUserType] = useState(null);
   const { currency, setCurrency } = useCurrency();
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -19,7 +22,7 @@ const Header = () => {
     const userData = JSON.parse(localStorage.getItem('user'));
     if (userData && userData.token) {
       setIsLoggedIn(true);
-      setUserType(userData.role); // 'ADMIN', 'RECEIVER', or 'DONOR'
+      setUserType(userData.role);
     } else {
       setIsLoggedIn(false);
       setUserType(null);
@@ -38,144 +41,218 @@ const Header = () => {
 
   const getDashboardLink = () => {
     switch(userType) {
-      case 'ADMIN':
+      case ROLES.ADMIN:
         return '/admin/dashboard';
-      case 'RECEIVER':
+      case ROLES.RECIPIENT:
         return '/recipient/dashboard';
-      case 'DONOR':
+      case ROLES.DONOR:
         return '/donor/dashboard';
       default:
         return '/login';
     }
   };
 
+  const isActive = (path) => {
+    return location.pathname === path ? 'text-primary font-semibold' : 'text-gray-600 hover:text-primary';
+  };
+
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [mobileMenuOpen]);
+
   return (
-    <header
-      className={`sticky top-0 w-full z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white shadow-md py-2' : 'bg-white py-3 border-b border-black/25'
-      } ${mobileMenuOpen ? 'bg-white' : ''}`}
-    >
-      <div className="relative">
-        <div className="relative px-4 mx-auto sm:px-6 lg:px-16">
-          <nav className="flex items-center justify-between h-16 lg:h-20">
+    <>
+      <header
+        className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+          isScrolled ? 'bg-white/95 backdrop-blur-md shadow-sm py-2' : 'bg-white py-4 border-b border-gray-100'
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <nav className="flex items-center justify-between h-16">
+            {/* Logo */}
             <div className="flex-shrink-0">
-              <Link to="/" className="flex">
-                <img src={logo} alt="NGO Logo" className="md:w-[130px] w-auto lg:h-auto h-10" />
+              <Link to="/" className="flex items-center gap-2">
+                <img src={logo} alt="GiveAd Logo" className="h-10 w-auto" />
+                <span className="text-xl font-bold font-heading text-gray-900 hidden sm:block">Give<span className="text-primary">Ad</span></span>
               </Link>
             </div>
 
-            {/* Hamburger Button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              type="button"
-              className="inline-flex p-2 text-black transition-all duration-200 rounded-md lg:hidden focus:bg-gray-100 hover:bg-gray-100"
-            >
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" />
-              </svg>
-            </button>
-
-            {/* Desktop Menu */}
-            <div className="hidden lg:flex lg:items-center lg:space-x-10">
-              <Link to="/" className="text-base font-medium text-[#525560]">Home</Link>
-              <Link to="/about" className="text-base font-medium text-[#525560]">About us</Link>
-              <Link to="/receivers" className="text-base font-medium text-[#525560]">Receivers</Link>
-              <Link to="/contact" className="text-base font-medium text-[#525560]">Contact us</Link>
-      
-
-              {/* Currency Dropdown */}
-              <select
-                value={currency}
-                onChange={handleCurrencyChange}
-                className="text-base font-medium text-[#0B8B68] border border-[#0B8B68] px-3 py-1 rounded hover:bg-[#0B8B68] hover:text-white transition bg-white"
-              >
-                <option value="INR">₹ INR</option>
-                <option value="USD">$ USD</option>
-              </select>
+            {/* Desktop Menu - Hidden on mobile and tablet (md) */}
+            <div className="hidden lg:flex items-center space-x-8">
+              <Link to="/" className={`text-sm font-medium transition-colors ${isActive('/')}`}>Home</Link>
+              <Link to="/about" className={`text-sm font-medium transition-colors ${isActive('/about')}`}>About Us</Link>
+              <Link to="/receivers" className={`text-sm font-medium transition-colors ${isActive('/receivers')}`}>Receivers</Link>
+              <Link to="/contact" className={`text-sm font-medium transition-colors ${isActive('/contact')}`}>Contact</Link>
             </div>
 
-            {isLoggedIn ? (
-              <Link
-                to={getDashboardLink()}
-                className="items-center justify-center hidden px-8 py-2.5 text-base font-semibold hover:text-[#0B8B68] transition duration-300 bg-[#0B8B68] hover:bg-white border border-white hover:border-[#0B8B68] text-white rounded-[6px] lg:inline-flex"
-                role="button"
+            {/* Right Section (Currency + Auth) - Hidden on mobile and tablet */}
+            <div className="hidden lg:flex items-center space-x-6">
+              <div className="relative">
+                <select
+                  value={currency}
+                  onChange={handleCurrencyChange}
+                  className="appearance-none bg-gray-50 border border-gray-200 text-gray-700 text-sm font-medium py-2 pl-3 pr-8 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary cursor-pointer hover:bg-gray-100 transition-colors"
+                >
+                  <option value="INR">🇮🇳 INR</option>
+                  <option value="USD">🇺🇸 USD</option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+              </div>
+
+              {isLoggedIn ? (
+                <Link
+                  to={getDashboardLink()}
+                  className="inline-flex items-center justify-center px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200 bg-primary rounded-lg hover:bg-primary-dark shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+                >
+                  Dashboard
+                </Link>
+              ) : (
+                <Link
+                  to="/login"
+                  className="inline-flex items-center justify-center px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200 bg-primary rounded-lg hover:bg-primary-dark shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+                >
+                  Sign In
+                </Link>
+              )}
+            </div>
+
+            {/* Mobile/Tablet Menu Button - Visible on lg and below */}
+            <div className="flex lg:hidden">
+              <button
+                type="button"
+                className="text-gray-700 hover:text-primary p-2 rounded-md hover:bg-gray-100 transition-colors"
+                onClick={() => setMobileMenuOpen(true)}
               >
-                Dashboard
-              </Link>
-            ) : (
-              <Link
-                to="/login"
-                className="items-center justify-center hidden px-8 py-2.5 text-base font-semibold hover:text-[#0B8B68] transition duration-300 bg-[#0B8B68] hover:bg-white border border-white hover:border-[#0B8B68] text-white rounded-[6px] lg:inline-flex"
-                role="button"
-              >
-                Login
-              </Link>
-            )}
+                <span className="sr-only">Open menu</span>
+                <Bars3Icon className="h-6 w-6" aria-hidden="true" />
+              </button>
+            </div>
           </nav>
         </div>
+      </header>
+
+      {/* Mobile Menu Overlay - Moved outside header to avoid backdrop-filter issues */}
+      <div className={`fixed inset-0 z-[60] lg:hidden transition-opacity duration-300 ${mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+        {/* Backdrop */}
+        <div 
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm transition-opacity" 
+          onClick={() => setMobileMenuOpen(false)} 
+        />
+        
+        {/* Menu Panel */}
+        <div className={`fixed inset-y-0 right-0 z-[60] w-full max-w-sm bg-white shadow-2xl transform transition-transform duration-300 ease-in-out ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+          <div className="flex flex-col h-full">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+              <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2">
+                <img src={logo} alt="GiveAd Logo" className="h-8 w-auto" />
+                <span className="text-lg font-bold font-heading text-gray-900">Give<span className="text-primary">Ad</span></span>
+              </Link>
+              <button
+                type="button"
+                className="text-gray-500 hover:text-gray-700 p-2 rounded-md hover:bg-gray-100 transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <span className="sr-only">Close menu</span>
+                <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="flex flex-col space-y-6">
+                <div className="flex flex-col space-y-2">
+                  <Link 
+                    to="/" 
+                    onClick={() => setMobileMenuOpen(false)} 
+                    className={`px-4 py-3 rounded-lg text-base font-medium transition-colors ${location.pathname === '/' ? 'bg-primary/10 text-primary' : 'text-gray-700 hover:bg-gray-50'}`}
+                  >
+                    Home
+                  </Link>
+                  <Link 
+                    to="/about" 
+                    onClick={() => setMobileMenuOpen(false)} 
+                    className={`px-4 py-3 rounded-lg text-base font-medium transition-colors ${location.pathname === '/about' ? 'bg-primary/10 text-primary' : 'text-gray-700 hover:bg-gray-50'}`}
+                  >
+                    About Us
+                  </Link>
+                  <Link 
+                    to="/receivers" 
+                    onClick={() => setMobileMenuOpen(false)} 
+                    className={`px-4 py-3 rounded-lg text-base font-medium transition-colors ${location.pathname === '/receivers' ? 'bg-primary/10 text-primary' : 'text-gray-700 hover:bg-gray-50'}`}
+                  >
+                    Receivers
+                  </Link>
+                  <Link 
+                    to="/contact" 
+                    onClick={() => setMobileMenuOpen(false)} 
+                    className={`px-4 py-3 rounded-lg text-base font-medium transition-colors ${location.pathname === '/contact' ? 'bg-primary/10 text-primary' : 'text-gray-700 hover:bg-gray-50'}`}
+                  >
+                    Contact
+                  </Link>
+                </div>
+
+                <div className="pt-6 border-t border-gray-100">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">Currency</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => setCurrency('INR')}
+                      className={`flex items-center justify-center px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
+                        currency === 'INR' 
+                          ? 'border-primary bg-primary/5 text-primary' 
+                          : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                      }`}
+                    >
+                      🇮🇳 INR
+                    </button>
+                    <button
+                      onClick={() => setCurrency('USD')}
+                      className={`flex items-center justify-center px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
+                        currency === 'USD' 
+                          ? 'border-primary bg-primary/5 text-primary' 
+                          : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                      }`}
+                    >
+                      🇺🇸 USD
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-6 border-t border-gray-100 bg-gray-50">
+              {isLoggedIn ? (
+                <Link
+                  to={getDashboardLink()}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center w-full px-4 py-3 text-base font-semibold text-white bg-primary rounded-lg hover:bg-primary-dark shadow-sm transition-all transform active:scale-95"
+                >
+                  Go to Dashboard
+                </Link>
+              ) : (
+                <Link
+                  to="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center w-full px-4 py-3 text-base font-semibold text-white bg-primary rounded-lg hover:bg-primary-dark shadow-sm transition-all transform active:scale-95"
+                >
+                  Sign In / Register
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
-
-      {/* Mobile Menu */}
-      <div
-        className={`fixed inset-y-0 left-0 z-50 w-4/5 max-w-xs transform bg-black px-6 py-10 transition-transform duration-300 ease-in-out ${
-          mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:hidden`}
-      >
-        <div className="flex justify-end">
-          <button
-            onClick={() => setMobileMenuOpen(false)}
-            type="button"
-            className="inline-flex p-2 text-white transition-all duration-200 rounded-md focus:bg-gray-800 hover:bg-gray-800"
-          >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        <div className="flex flex-col flex-grow mt-10 space-y-4">
-          <Link to="/" onClick={() => setMobileMenuOpen(false)} className="text-white text-base font-medium">Home</Link>
-          <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="text-white text-base font-medium">About us</Link>
-          <Link to="/receivers" onClick={() => setMobileMenuOpen(false)} className="text-white text-base font-medium">Receivers</Link>
-          <Link to="/contact" onClick={() => setMobileMenuOpen(false)} className="text-white text-base font-medium">Contact us</Link>
-        </div>
-
-        <div className="mt-auto pt-6 space-y-4">
-          {isLoggedIn ? (
-            <Link
-              to={getDashboardLink()}
-              onClick={() => setMobileMenuOpen(false)}
-              className="inline-flex items-center justify-center w-full px-6 py-3 text-base font-semibold text-black transition-all duration-200 bg-[#0B8B68] border border-transparent rounded"
-              role="button"
-            >
-              Dashboard
-            </Link>
-          ) : (
-            <Link
-              to="/login"
-              onClick={() => setMobileMenuOpen(false)}
-              className="inline-flex items-center justify-center w-full px-6 py-3 text-base font-semibold text-black transition-all duration-200 bg-[#0B8B68] border border-transparent rounded"
-              role="button"
-            >
-              Login
-            </Link>
-          )}
-
-          {/* Currency Dropdown in Mobile */}
-          <select
-            value={currency}
-            onChange={(e) => {
-              setCurrency(e.target.value);
-              setMobileMenuOpen(false);
-            }}
-            className="w-full bg-white text-black text-base font-medium px-4 py-2 rounded border border-white"
-          >
-            <option value="INR">₹ INR</option>
-            <option value="USD">$ USD</option>
-          </select>
-        </div>
-      </div>
-    </header>
+    </>
   );
 };
 

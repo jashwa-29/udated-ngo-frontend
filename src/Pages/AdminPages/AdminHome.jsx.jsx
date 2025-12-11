@@ -35,7 +35,7 @@ const AdminHome = () => {
             The total number of individuals we are currently supporting through our platform.
           </p>
           <button
-            className='text-base bg-[#0B8B68] text-white px-5 py-2 rounded'
+            className='text-base bg-[#4D9186] text-white px-5 py-2 rounded'
             onClick={() => navigate('/admin/total-recipients')}
           >
             View Details
@@ -47,7 +47,7 @@ const AdminHome = () => {
             The total number of individuals who have contributed to our mission.
           </p>
           <button
-            className='text-base bg-[#0B8B68] text-white px-5 py-2 rounded'
+            className='text-base bg-[#4D9186] text-white px-5 py-2 rounded'
             onClick={() => navigate('/admin/total-donors')}
           >
             View Details

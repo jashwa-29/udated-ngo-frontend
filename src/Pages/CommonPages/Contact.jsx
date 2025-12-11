@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -9,113 +9,128 @@ const Contact = () => {
     message: ''
   });
   
-  const [errors, setErrors] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    company: '',
-    message: ''
-  });
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  const [submissionStatus, setSubmissionStatus] = useState(null); // 'success', 'error', or null
 
   // Validation patterns
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const phonePattern = /^(\+91[\-\s]?)?[0]?(91)?[6789]\d{9}$/; // Indian mobile numbers
-  const namePattern = /^[a-zA-Z\s]{2,}$/; // At least 2 letters and spaces only
-  const messagePattern = /^.{10,}$/; // At least 10 characters
+  const phonePattern = /^[6-9]\d{9}$/; // Basic Indian mobile number validation (10 digits starting with 6-9)
+  const namePattern = /^[a-zA-Z\s]{2,}$/;
+  
+  const validate = (values) => {
+    const newErrors = {};
+    
+    if (!values.name.trim()) {
+      newErrors.name = 'Name is required';
+    } else if (!namePattern.test(values.name)) {
+      newErrors.name = 'Name should contain at least 2 letters';
+    }
+
+    if (!values.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!emailPattern.test(values.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
+    if (!values.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    } else if (!phonePattern.test(values.phone.replace(/[\s\-\(\)\+91]/g, ''))) {
+      newErrors.phone = 'Please enter a valid 10-digit Indian mobile number';
+    }
+
+    if (!values.company.trim()) {
+      newErrors.company = 'Company name is required';
+    }
+
+    if (!values.message.trim()) {
+      newErrors.message = 'Message is required';
+    } else if (values.message.length < 10) {
+      newErrors.message = 'Message should be at least 10 characters long';
+    }
+
+    return newErrors;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
     
-    // Validate in real-time
-    validateField(name, value);
-  };
-
-  const validateField = (name, value) => {
-    let error = '';
-    
-    switch(name) {
-      case 'name':
-        if (!value.trim()) {
-          error = 'Name is required';
-        } else if (!namePattern.test(value)) {
-          error = 'Name should contain at least 2 letters and only contain letters and spaces';
-        }
-        break;
-      case 'email':
-        if (!value.trim()) {
-          error = 'Email is required';
-        } else if (!emailPattern.test(value)) {
-          error = 'Please enter a valid email address';
-        }
-        break;
-      case 'phone':
-        if (!value.trim()) {
-          error = 'Phone number is required';
-        } else if (!phonePattern.test(value.replace(/[\s\-\(\)]/g, ''))) {
-          error = 'Please enter a valid Indian mobile number (e.g., 9876543210, +91 9876543210)';
-        }
-        break;
-      case 'company':
-        if (!value.trim()) {
-          error = 'Company name is required';
-        } else if (value.length < 2) {
-          error = 'Company name should be at least 2 characters';
-        }
-        break;
-      case 'message':
-        if (!value.trim()) {
-          error = 'Message is required';
-        } else if (!messagePattern.test(value)) {
-          error = 'Message should be at least 10 characters long';
-        }
-        break;
-      default:
-        break;
+    // Clear error when user starts typing if field was previously invalid
+    if (touched[name]) {
+      setErrors((prev) => ({ ...prev, [name]: '' }));
     }
-    
-    setErrors({ ...errors, [name]: error });
-    return !error;
   };
 
-  const validateForm = () => {
-    let valid = true;
-    const newErrors = {...errors};
-    
-    Object.keys(formData).forEach(key => {
-      const fieldValid = validateField(key, formData[key]);
-      if (!fieldValid) valid = false;
-    });
-    
-    return valid;
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    setTouched({ ...touched, [name]: true });
+    const validationErrors = validate(formData);
+    setErrors(validationErrors);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    if (validateForm()) {
-      // Form is valid, proceed with submission
+    // Mark all fields as touched
+    const allTouched = Object.keys(formData).reduce((acc, key) => {
+      acc[key] = true;
+      return acc;
+    }, {});
+    setTouched(allTouched);
+
+    const validationErrors = validate(formData);
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length === 0) {
+      // Simulate API call
       console.log('Form submitted:', formData);
-      alert('Form submitted successfully!');
-      // Here you would typically send the data to your backend
+      setSubmissionStatus('success');
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        company: '',
+        message: ''
+      });
+      setTouched({});
+      
+      // Reset success message after 5 seconds
+      setTimeout(() => setSubmissionStatus(null), 5000);
     } else {
-      alert('Please fix the errors in the form before submitting.');
+      setSubmissionStatus('error');
     }
   };
 
   return (
-    <section className="py-10 sm:py-16 lg:py-16">
+    <section className="py-10 sm:py-16 lg:py-16 bg-gray-50">
       <div className="px-4 mx-auto sm:px-6 lg:px-8 max-w-7xl">
         <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-3xl font-bold leading-tight text-black sm:text-4xl lg:text-5xl">Contact <span className='text-[#0B8B68]'>Us</span></h2>
-          <p className="max-w-xl mx-auto mt-4 text-base leading-relaxed text-black">Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis.</p>
+          <h2 className="text-3xl font-bold leading-tight text-gray-900 sm:text-4xl lg:text-5xl font-heading">
+            Contact <span className='text-primary'>Us</span>
+          </h2>
+          <p className="max-w-xl mx-auto mt-4 text-base leading-relaxed text-secondary">
+            We'd love to hear from you. Please fill out the form below or reach out to us directly.
+          </p>
         </div>
 
-        <div className="max-w-6xl mx-auto mt-12 overflow-hidden bg-white rounded-md shadow-lg border border-gray-200 lg:mt-20">
+        <div className="max-w-6xl mx-auto mt-12 overflow-hidden bg-white rounded-xl shadow-xl lg:mt-20">
           <div className="grid items-stretch grid-cols-1 lg:grid-cols-5">
             <div className="lg:col-span-3">
               <div className="p-6 sm:p-10">
-                <h3 className="text-2xl font-semibold text-black">Send us a message</h3>
+                <h3 className="text-2xl font-semibold text-gray-900 font-heading">Send us a message</h3>
+
+                {submissionStatus === 'success' && (
+                  <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-md">
+                    <p className="text-green-700 font-medium">Thank you! Your message has been sent successfully.</p>
+                  </div>
+                )}
+                
+                {submissionStatus === 'error' && Object.keys(errors).length > 0 && (
+                  <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
+                    <p className="text-red-700 font-medium">Please fix the errors below and try again.</p>
+                  </div>
+                )}
 
                 <form onSubmit={handleSubmit} className="mt-8">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4">
@@ -128,10 +143,17 @@ const Contact = () => {
                           id="name" 
                           value={formData.name}
                           onChange={handleChange}
+                          onBlur={handleBlur}
                           placeholder="Enter your full name"
-                          className={`block w-full px-4 py-4 text-black placeholder-gray-500 transition-all duration-200 border ${errors.name ? 'border-red-500' : 'border-gray-200'} rounded-md bg-gray-50 focus:outline-none focus:border-[#0B8B68] focus:bg-white caret-[#0B8B68]`}
+                          className={`block w-full px-4 py-4 text-black placeholder-gray-500 transition-all duration-200 border rounded-md bg-gray-50 focus:outline-none focus:bg-white caret-primary ${
+                            touched.name && errors.name 
+                              ? 'border-red-500 focus:border-red-500' 
+                              : 'border-gray-200 focus:border-primary'
+                          }`}
                         />
-                        {errors.name && <p className="mt-1 text-sm text-red-500">{errors.name}</p>}
+                        {touched.name && errors.name && (
+                          <p className="mt-1 text-sm text-red-500 font-medium animate-pulse">{errors.name}</p>
+                        )}
                       </div>
                     </div>
 
@@ -144,10 +166,17 @@ const Contact = () => {
                           id="email" 
                           value={formData.email}
                           onChange={handleChange}
+                          onBlur={handleBlur}
                           placeholder="Enter your email address"
-                          className={`block w-full px-4 py-4 text-black placeholder-gray-500 transition-all duration-200 border ${errors.email ? 'border-red-500' : 'border-gray-200'} rounded-md bg-gray-50 focus:outline-none focus:border-[#0B8B68] focus:bg-white caret-[#0B8B68]`}
+                          className={`block w-full px-4 py-4 text-black placeholder-gray-500 transition-all duration-200 border rounded-md bg-gray-50 focus:outline-none focus:bg-white caret-primary ${
+                            touched.email && errors.email 
+                              ? 'border-red-500 focus:border-red-500' 
+                              : 'border-gray-200 focus:border-primary'
+                          }`}
                         />
-                        {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email}</p>}
+                        {touched.email && errors.email && (
+                          <p className="mt-1 text-sm text-red-500 font-medium animate-pulse">{errors.email}</p>
+                        )}
                       </div>
                     </div>
 
@@ -160,10 +189,17 @@ const Contact = () => {
                           id="phone" 
                           value={formData.phone}
                           onChange={handleChange}
-                          placeholder="e.g., 9876543210 or +91 9876543210"
-                          className={`block w-full px-4 py-4 text-black placeholder-gray-500 transition-all duration-200 border ${errors.phone ? 'border-red-500' : 'border-gray-200'} rounded-md bg-gray-50 focus:outline-none focus:border-[#0B8B68] focus:bg-white caret-[#0B8B68]`}
+                          onBlur={handleBlur}
+                          placeholder="e.g., 9876543210"
+                          className={`block w-full px-4 py-4 text-black placeholder-gray-500 transition-all duration-200 border rounded-md bg-gray-50 focus:outline-none focus:bg-white caret-primary ${
+                            touched.phone && errors.phone 
+                              ? 'border-red-500 focus:border-red-500' 
+                              : 'border-gray-200 focus:border-primary'
+                          }`}
                         />
-                        {errors.phone && <p className="mt-1 text-sm text-red-500">{errors.phone}</p>}
+                        {touched.phone && errors.phone && (
+                          <p className="mt-1 text-sm text-red-500 font-medium animate-pulse">{errors.phone}</p>
+                        )}
                       </div>
                     </div>
 
@@ -176,10 +212,17 @@ const Contact = () => {
                           id="company" 
                           value={formData.company}
                           onChange={handleChange}
+                          onBlur={handleBlur}
                           placeholder="Enter your company name"
-                          className={`block w-full px-4 py-4 text-black placeholder-gray-500 transition-all duration-200 border ${errors.company ? 'border-red-500' : 'border-gray-200'} rounded-md bg-gray-50 focus:outline-none focus:border-[#0B8B68] focus:bg-white caret-[#0B8B68]`}
+                          className={`block w-full px-4 py-4 text-black placeholder-gray-500 transition-all duration-200 border rounded-md bg-gray-50 focus:outline-none focus:bg-white caret-primary ${
+                            touched.company && errors.company 
+                              ? 'border-red-500 focus:border-red-500' 
+                              : 'border-gray-200 focus:border-primary'
+                          }`}
                         />
-                        {errors.company && <p className="mt-1 text-sm text-red-500">{errors.company}</p>}
+                        {touched.company && errors.company && (
+                          <p className="mt-1 text-sm text-red-500 font-medium animate-pulse">{errors.company}</p>
+                        )}
                       </div>
                     </div>
 
@@ -191,20 +234,27 @@ const Contact = () => {
                           id="message"
                           value={formData.message}
                           onChange={handleChange}
+                          onBlur={handleBlur}
                           placeholder="Type your message here (minimum 10 characters)"
                           rows="4"
-                          className={`block w-full px-4 py-4 text-black placeholder-gray-500 transition-all duration-200 border ${errors.message ? 'border-red-500' : 'border-gray-200'} rounded-md resize-y bg-gray-50 focus:outline-none focus:border-[#0B8B68] focus:bg-white caret-[#0B8B68]`}
+                          className={`block w-full px-4 py-4 text-black placeholder-gray-500 transition-all duration-200 border rounded-md resize-y bg-gray-50 focus:outline-none focus:bg-white caret-primary ${
+                            touched.message && errors.message 
+                              ? 'border-red-500 focus:border-red-500' 
+                              : 'border-gray-200 focus:border-primary'
+                          }`}
                         ></textarea>
-                        {errors.message && <p className="mt-1 text-sm text-red-500">{errors.message}</p>}
+                        {touched.message && errors.message && (
+                          <p className="mt-1 text-sm text-red-500 font-medium animate-pulse">{errors.message}</p>
+                        )}
                       </div>
                     </div>
 
                     <div className="sm:col-span-2">
                       <button 
                         type="submit" 
-                        className="inline-flex items-center justify-center w-full px-4 py-4 mt-2 text-base font-semibold hover:text-[#0B8B68] transition duration-300 bg-[#0B8B68] hover:bg-white border border-white hover:border-[#0B8B68] text-white rounded-[6px]"
+                        className="inline-flex items-center justify-center w-full px-4 py-4 mt-2 text-base font-semibold hover:text-primary transition duration-300 bg-primary hover:bg-white border border-white hover:border-primary text-white rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                       >
-                        Send
+                        Send Message
                       </button>
                     </div>
                   </div>
@@ -212,57 +262,56 @@ const Contact = () => {
               </div>
             </div>
 
-            <div className="bg-[url(../src/assets/close-up-team-students-teamwork-stack-hands-together-startup-success-concept.jpg)] bg-cover bg-no-repeat lg:col-span-2 relative">
-              <div className='absolute bg-black/40 w-full h-full'></div>
+            <div className="bg-[url('https://images.unsplash.com/photo-1529390079861-591de354faf5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80')] bg-cover bg-center bg-no-repeat lg:col-span-2 relative min-h-[400px] lg:min-h-full">
+              <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30'></div>
 
-              <div className="relative h-full p-6 sm:p-10">
-                <div className="flex flex-col justify-between h-full">
-                  <div>
-                    <h4 className="text-2xl font-semibold text-white">Contact info</h4>
+              <div className="relative h-full p-6 sm:p-10 flex flex-col justify-between">
+                <div>
+                  <h4 className="text-2xl font-semibold text-white font-heading">Contact Info</h4>
 
-                    <div className="mt-8 space-y-7">
-                      <div className="flex items-start">
-                        <svg className="flex-shrink-0 text-[#0B8B68] w-7 h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        <span className="block ml-3 text-base text-white font-medium"> 123 Main Street, Mumbai, Maharashtra 400001, India </span>
-                      </div>
+                  <div className="mt-8 space-y-7">
+                    <div className="flex items-start">
+                      <svg className="flex-shrink-0 text-primary w-7 h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span className="block ml-3 text-base text-white font-medium"> 123 Main Street, Mumbai, Maharashtra 400001, India </span>
+                    </div>
 
-                      <div className="flex items-start">
-                        <svg className="flex-shrink-0 text-[#0B8B68] w-7 h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
-                        <span className="block ml-3 text-base text-white font-medium"> info@example.com </span>
-                      </div>
+                    <div className="flex items-start">
+                      <svg className="flex-shrink-0 text-primary w-7 h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      <span className="block ml-3 text-base text-white font-medium"> info@example.com </span>
+                    </div>
 
-                      <div className="flex items-start">
-                        <svg className="flex-shrink-0 text-[#0B8B68] w-7 h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="1.5"
-                            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                          />
-                        </svg>
-                        <div className="ml-3">
-                          <span className="block text-base text-white font-medium"> +91 9876543210 </span>
-                          <span className="block mt-1 text-base text-white font-medium"> 022 12345678 </span>
-                        </div>
+                    <div className="flex items-start">
+                      <svg className="flex-shrink-0 text-primary w-7 h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="1.5"
+                          d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                        />
+                      </svg>
+                      <div className="ml-3">
+                        <span className="block text-base text-white font-medium"> +91 9876543210 </span>
+                        <span className="block mt-1 text-base text-white font-medium"> 022 12345678 </span>
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  <div className="mt-8 lg:mt-auto">
-                    <hr className="border-gray-400" />
-                    <div className="flex items-center justify-between mt-7">
-                      <p className="text-lg font-semibold text-white">Follow us on</p>
+                <div className="mt-8 lg:mt-auto">
+                  <hr className="border-gray-500/50" />
+                  <div className="flex items-center justify-between mt-7">
+                    <p className="text-lg font-semibold text-white font-heading">Follow us on</p>
 
-                      <ul className="flex items-center justify-end space-x-3">
-                        <li>
+                    <ul className="flex items-center justify-end space-x-3">
+                      {['facebook', 'twitter', 'instagram', 'linkedin'].map((social) => (
+                        <li key={social}>
                           <a
                             href="#"
-                            title=""
                             className="
                               flex
                               items-center
@@ -273,119 +322,23 @@ const Contact = () => {
                               bg-transparent
                               border border-gray-300
                               rounded-full
-                              w-7
-                              h-7
-                              focus:bg-[#0B8B68]
+                              w-8
+                              h-8
+                              focus:bg-primary
                               hover:text-black
                               focus:text-black
-                              hover:bg-[#0B8B68] hover:border-[#0B8B68]
-                              focus:border-[#0B8B68]
+                              hover:bg-primary hover:border-primary
+                              focus:border-primary
                             "
                           >
-                            <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                              <path
-                                d="M19.633 7.997c.013.175.013.349.013.523 0 5.325-4.053 11.461-11.46 11.461-2.282 0-4.402-.661-6.186-1.809.324.037.636.50.973.50a8.07 8.07 0 0 0 5.001-1.721 4.036 4.036 0 0 1-3.767-2.793c.249.037.499.062.761.062.361 0 .724-.05 1.061-.137a4.027 4.027 0 0 1-3.23-3.953v-.05c.537.299 1.16.486 1.82.511a4.022 4.022 0 0 1-1.796-3.354c0-.748.199-1.434.548-2.032a11.457 11.457 0 0 0 8.306 4.215c-.062-.3-.1-.611-.1-.923a4.026 4.026 0 0 1 4.028-4.028c1.16 0 2.207.486 2.943 1.272a7.957 7.957 0 0 0 2.556-.973 4.02 4.02 0 0 1-1.771 2.22 8.073 8.073 0 0 0 2.319-.624 8.645 8.645 0 0 1-2.019 2.083z"
-                              ></path>
+                            <span className="sr-only">{social}</span>
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                              <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
                             </svg>
                           </a>
                         </li>
-
-                        <li>
-                          <a
-                            href="#"
-                            title=""
-                            className="
-                              flex
-                              items-center
-                              justify-center
-                              text-white
-                              transition-all
-                              duration-200
-                              bg-transparent
-                              border border-gray-300
-                              rounded-full
-                              w-7
-                              h-7
-                              focus:bg-[#0B8B68]
-                              hover:text-black
-                              focus:text-black
-                              hover:bg-[#0B8B68] hover:border-[#0B8B68]
-                              focus:border-[#0B8B68]
-                            "
-                          >
-                            <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M13.397 20.997v-8.196h2.765l.411-3.209h-3.176V7.548c0-.926.258-1.56 1.587-1.56h1.684V3.127A22.336 22.336 0 0 0 14.201 3c-2.444 0-4.122 1.492-4.122 4.231v2.355H7.332v3.209h2.753v8.202h3.312z"></path>
-                            </svg>
-                          </a>
-                        </li>
-
-                        <li>
-                          <a
-                            href="#"
-                            title=""
-                            className="
-                              flex
-                              items-center
-                              justify-center
-                              text-white
-                              transition-all
-                              duration-200
-                              bg-transparent
-                              border border-gray-300
-                              rounded-full
-                              w-7
-                              h-7
-                              focus:bg-[#0B8B68]
-                              hover:text-black
-                              focus:text-black
-                              hover:bg-[#0B8B68] hover:border-[#0B8B68]
-                              focus:border-[#0B8B68]
-                            "
-                          >
-                            <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M11.999 7.377a4.623 4.623 0 1 0 0 9.248 4.623 4.623 0 0 0 0-9.248zm0 7.627a3.004 3.004 0 1 1 0-6.008 3.004 3.004 0 0 1 0 6.008z"></path>
-                              <circle cx="16.806" cy="7.207" r="1.078"></circle>
-                              <path
-                                d="M20.533 6.111A4.605 4.605 0 0 0 17.9 3.479a6.606 6.606 0 0 0-2.186-.42c-.963-.042-1.268-.054-3.71-.054s-2.755 0-3.71.054a6.554 6.554 0 0 0-2.184.42 4.6 4.6 0 0 0-2.633 2.632 6.585 6.585 0 0 0-.419 2.186c-.043.962-.056 1.267-.056 3.71 0 2.442 0 2.753.056 3.71.015.748.156 1.486.419 2.187a4.61 4.61 0 0 0 2.634 2.632 6.584 6.584 0 0 0 2.185.45c.963.042 1.268.055 3.71.055s2.755 0 3.71-.055a6.615 6.615 0 0 0 2.186-.419 4.613 4.613 0 0 0 2.633-2.633c.263-.7.404-1.438.419-2.186.043-.962.056-1.267.056-3.71s0-2.753-.056-3.71a6.581 6.581 0 0 0-.421-2.217zm-1.218 9.532a5.043 5.043 0 0 1-.311 1.688 2.987 2.987 0 0 1-1.712 1.711 4.985 4.985 0 0 1-1.67.311c-.950.044-1.218.055-3.654.055-2.438 0-2.687 0-3.655-.055a4.96 4.96 0 0 1-1.669-.311 2.985 2.985 0 0 1-1.719-1.711 5.08 5.08 0 0 1-.311-1.669c-.043-.95-.053-1.218-.053-3.654 0-2.437 0-2.686.053-3.655a5.038 5.038 0 0 1 .311-1.687c.305-.789.93-1.41 1.719-1.712a5.01 5.01 0 0 1 1.669-.311c.951-.043 1.218-.055 3.655-.055s2.687 0 3.654.055a4.96 4.96 0 0 1 1.67.311 2.991 2.991 0 0 1 1.712 1.712 5.08 5.08 0 0 1 .311 1.669c.043.951.054 1.218.054 3.655 0 2.436 0 2.698-.043 3.654h-.011z"
-                              ></path>
-                            </svg>
-                          </a>
-                        </li>
-
-                        <li>
-                          <a
-                            href="#"
-                            title=""
-                            className="
-                              flex
-                              items-center
-                              justify-center
-                              text-white
-                              transition-all
-                              duration-200
-                              bg-transparent
-                              border border-gray-300
-                              rounded-full
-                              w-7
-                              h-7
-                              focus:bg-[#0B8B68]
-                              hover:text-black
-                              focus:text-black
-                              hover:bg-[#0B8B68] hover:border-[#0B8B68]
-                              focus:border-[#0B8B68]
-                            "
-                          >
-                            <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                              <path
-                                fillRule="evenodd"
-                                clipRule="evenodd"
-                                d="M12.026 2c-5.509 0-9.974 4.465-9.974 9.974 0 4.406 2.857 8.145 6.821 9.465.499.09.679-.217.679-.481 0-.237-.008-.865-.011-1.696-2.775.602-3.361-1.338-3.361-1.338-.452-1.152-1.107-1.459-1.107-1.459-.905-.619.069-.605.069-.605 1.002.07 1.527 1.028 1.527 1.028.89 1.524 2.336 1.084 2.902.829.091-.645.351-1.085.635-1.334-2.214-.251-4.542-1.107-4.542-4.93 0-1.087.389-1.979 1.024-2.675-.101-.253-.446-1.268.099-2.64 0 0 .837-.269 2.742 1.021a9.582 9.582 0 0 1 2.496-.336 9.554 9.554 0 0 1 2.496.336c1.906-1.291 2.742-1.021 2.742-1.021.545 1.372.203 2.387.099 2.60.64.696 1.024 1.587 1.024 2.675 0 3.833-2.33 4.675-4.552 4.922.355.308.675.916.675 1.846 0 1.334-.012 2.41-.012 2.737 0 .267.178.577.687.479C19.146 20.115 22 16.379 22 11.974 22 6.465 17.535 2 12.026 2z"
-                              ></path>
-                            </svg>
-                          </a>
-                        </li>
-                      </ul>
-                    </div>
+                      ))}
+                    </ul>
                   </div>
                 </div>
               </div>
@@ -394,7 +347,7 @@ const Contact = () => {
         </div>
       </div>
     </section>
-  )
+  );
 }
 
-export default Contact
+export default Contact;

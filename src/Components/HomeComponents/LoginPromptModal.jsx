@@ -13,7 +13,7 @@ const LoginPromptModal = ({ isOpen, onClose, onLogin}) => {
         <div className="flex flex-col gap-4">
           <button
             onClick={onLogin}
-            className="bg-[#0B8B68] text-white py-2 rounded hover:bg-[#097256]"
+            className="bg-[#4D9186] text-white py-2 rounded hover:bg-[#097256]"
           >
             Login / Register as Donor
           </button>

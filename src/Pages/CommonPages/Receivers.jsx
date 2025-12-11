@@ -180,7 +180,7 @@ const Receivers = () => {
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-1.5 mb-1">
                       <div
-                        className="bg-[#0B8B68] h-1.5 rounded-full"
+                        className="bg-[#4D9186] h-1.5 rounded-full"
                         style={{ width: `${progress.percentage}%` }}
                       ></div>
                     </div>
@@ -192,7 +192,7 @@ const Receivers = () => {
 
                   <div className="flex justify-center">
                     <button
-                      className="mt-3 px-8 py-2.5 text-sm font-medium hover:text-[#0B8B68] transition duration-300 bg-[#0B8B68] hover:bg-white border border-white hover:border-[#0B8B68] text-white rounded-[6px]"
+                      className="mt-3 px-8 py-2.5 text-sm font-medium hover:text-[#4D9186] transition duration-300 bg-[#4D9186] hover:bg-white border border-white hover:border-[#4D9186] text-white rounded-[6px]"
                       onClick={() => handleDonateClick(card)}
                     >
                       Donate Now
@@ -275,7 +275,7 @@ export default Receivers;
 //                   </div>
 //                   <div className="w-full bg-gray-200 rounded-full h-1.5 mb-1">
 //                     <div
-//                       className="bg-[#0B8B68] h-1.5 rounded-full"
+//                       className="bg-[#4D9186] h-1.5 rounded-full"
 //                       style={{ width: `${card.progress}%` }}
 //                     ></div>
 //                   </div>
@@ -285,7 +285,7 @@ export default Receivers;
 //                   </div>
 //                 </div>
 // <div className='flex justify-center'>
-//                 <button className="mt-3   px-8 py-2.5 text-sm font-medium hover:text-[#0B8B68] transition duration-300 bg-[#0B8B68] hover:bg-white border border-white hover:border-[#0B8B68] text-white rounded-[6px]" onClick={()=>handleDonateClick()}>
+//                 <button className="mt-3   px-8 py-2.5 text-sm font-medium hover:text-[#4D9186] transition duration-300 bg-[#4D9186] hover:bg-white border border-white hover:border-[#4D9186] text-white rounded-[6px]" onClick={()=>handleDonateClick()}>
 //                   Donate Now
 //                 </button></div>
 //               </div>

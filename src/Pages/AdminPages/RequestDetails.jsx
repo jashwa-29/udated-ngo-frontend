@@ -75,7 +75,7 @@ const RequestDetails = () => {
 
   if (loading) return (
     <div className="flex justify-center items-center h-40">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0B8B68]"></div>
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#4D9186]"></div>
     </div>
   );
 
@@ -167,7 +167,7 @@ const RequestDetails = () => {
       {recipientInfo.adminapprovedstatus === "waiting" && (
         <div className="flex gap-4 mt-4">
           <button
-            className="items-center justify-center hidden px-8 py-2.5 text-base font-semibold hover:text-[#0B8B68] transition duration-300 bg-[#0B8B68] hover:bg-white border border-white hover:border-[#0B8B68] text-white rounded-[6px] lg:inline-flex"
+            className="items-center justify-center hidden px-8 py-2.5 text-base font-semibold hover:text-[#4D9186] transition duration-300 bg-[#4D9186] hover:bg-white border border-white hover:border-[#4D9186] text-white rounded-[6px] lg:inline-flex"
             onClick={() => {
               setModalAction("accepted");
               setShowModal(true);

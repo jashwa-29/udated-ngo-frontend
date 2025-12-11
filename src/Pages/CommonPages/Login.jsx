@@ -4,15 +4,15 @@ import { Link } from 'react-router-dom';
 const loginOptions = [
   {
     title: 'Admin Login',
-    route: '/login/admin-login',
+    route: '/admin-login',
   },
   {
     title: 'Recipients Login',
-    route: '/login/recipients-login',
+    route: '/recipients-login',
   },
   {
     title: 'Donor Login',
-    route: '/login/donor-login',
+    route: '/donor-login',
   },
 ];
 
