@@ -94,7 +94,7 @@ export default function CardSlider() {
 
   if (loading) {
     return (
-      <div className="py-20 px-4 max-w-7xl mx-auto">
+      <div id='card' className="py-20 px-4 max-w-7xl mx-auto">
         <div className="flex justify-between items-end mb-12">
           <div>
              <h2 className="text-primary font-semibold tracking-wide uppercase text-sm mb-2">Help Us Heal</h2>
@@ -120,7 +120,7 @@ export default function CardSlider() {
   }
 
   return (
-    <section id="causes" className="py-20 bg-white relative">
+    <section id="card" className="py-20 bg-white relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
           <div>
