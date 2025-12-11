@@ -12,7 +12,8 @@ const Footer = () => {
           {/* Brand Column */}
           <div className="space-y-6">
             <Link to="/" className="block">
-              <img src={logo} alt="GiveAd Logo" className="h-12 w-auto" />
+        <img src={logo} alt="GiveAd Logo" className="h-15 w-auto invert" />
+
             </Link>
             <p className="text-gray-400 leading-relaxed text-sm">
               We are dedicated to bridging the gap between compassionate donors and individuals in critical need, ensuring every contribution creates a lasting impact.

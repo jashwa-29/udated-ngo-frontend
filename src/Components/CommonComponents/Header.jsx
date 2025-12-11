@@ -79,8 +79,7 @@ const Header = () => {
             {/* Logo */}
             <div className="flex-shrink-0">
               <Link to="/" className="flex items-center gap-2">
-                <img src={logo} alt="GiveAd Logo" className="h-10 w-auto" />
-                <span className="text-xl font-bold font-heading text-gray-900 hidden sm:block">Give<span className="text-primary">Ad</span></span>
+                <img src={logo} alt="GiveAd Logo" className="h-15 w-auto" />
               </Link>
             </div>
 
