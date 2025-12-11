@@ -85,10 +85,10 @@ const Header = () => {
 
             {/* Desktop Menu - Hidden on mobile and tablet (md) */}
             <div className="hidden lg:flex items-center space-x-8">
-              <Link to="/" className={`text-sm font-medium transition-colors ${isActive('/')}`}>Home</Link>
-              <Link to="/about" className={`text-sm font-medium transition-colors ${isActive('/about')}`}>About Us</Link>
-              <Link to="/receivers" className={`text-sm font-medium transition-colors ${isActive('/receivers')}`}>Receivers</Link>
-              <Link to="/contact" className={`text-sm font-medium transition-colors ${isActive('/contact')}`}>Contact</Link>
+              <Link to="/" className={`text-[16px] font-medium transition-colors ${isActive('/')}`}>Home</Link>
+              <Link to="/about" className={`text-[16px] font-medium transition-colors ${isActive('/about')}`}>About Us</Link>
+              <Link to="/receivers" className={`text-[16px] font-medium transition-colors ${isActive('/receivers')}`}>Receivers</Link>
+              <Link to="/contact" className={`text-[16px] font-medium transition-colors ${isActive('/contact')}`}>Contact</Link>
             </div>
 
             {/* Right Section (Currency + Auth) - Hidden on mobile and tablet */}
