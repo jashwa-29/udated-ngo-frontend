@@ -10,9 +10,8 @@ const About = () => {
           {/* Content Side */}
           <div className="order-2 lg:order-1">
             <h2 className="text-base text-primary font-semibold tracking-wide uppercase">Who We Are</h2>
-            <h1 className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl font-heading">
-              Making a Difference, <br />
-              <span className="text-primary">One Life at a Time</span>
+                  <h1 className="mt-2 text-3xl  font-extrabold  text-gray-900 sm:text-4xl font-heading w-[60%]">
+              Making a Difference,  <span className="text-primary">One Life at a Time</span>
             </h1>
             <p className="mt-4 text-lg text-gray-500 leading-relaxed">
               At GiveAd, we believe that everyone deserves a chance to live a dignified life. We are a community of changemakers dedicated to bridging the gap between those who want to help and those who need it most.
