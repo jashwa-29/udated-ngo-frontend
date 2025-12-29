@@ -13,23 +13,27 @@ const ProtectedLayout = ({ children }) => {
   const navLinks = {
     ADMIN: [
       { label: 'Dashboard', path: '/admin/dashboard' },
-           { label: 'All Recipients', path: '/admin/total-recipients' },
+           { label: 'All Requests', path: '/admin/total-recipients' },
         { label: 'All Donors', path: '/admin/total-donors' },
-      { label: 'Requests', path: '/admin/requests' },
-    { label: 'Terms and Conditon', path: '/privacy-policy' },
-      { label: 'Privacy Policy', path: '/support' },
+      { label: 'New Requests', path: '/admin/requests' },
+      { label: 'Donations', path: '/admin/donations' },
+      { label: 'Notifications', path: '/admin/notifications' },
+      { label: 'Achieved Missions', path: '/admin/achieved-requests' },
+      { label: 'Contact Messages', path: '/admin/contacts' },
+      { label: 'Terms & Conditions', path: '/terms-conditions' },
+      { label: 'Privacy Policy', path: '/privacy-policy' },
     ],
     DONOR: [
       { label: 'Dashboard', path: '/donor/dashboard' },
       { label: 'My Donations', path: '/donor/mydonation' },
-    { label: 'Terms and Conditon', path: '/privacy-policy' },
+    { label: 'Terms & Conditions', path: '/terms-conditions' },
       { label: 'Privacy Policy', path: '/privacy-policy' },
     ],
     RECEIVER: [
       { label: 'Dashboard', path: '/recipient/dashboard' },
          { label: 'Request Form', path: '/recipient/request' },
-      { label: 'Terms and Conditon', path: '/requests' },
-      { label: 'Privacy Policy', path: '/support' },
+      { label: 'Terms & Conditions', path: '/terms-conditions' },
+      { label: 'Privacy Policy', path: '/privacy-policy' },
     ],
   };
 

@@ -2,8 +2,69 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { submitRecipientRequest, checkReceiverAuth } from '../../API/Receiver API/ReceiverRequest';
 import ReceiverLoginModal from './ReceiverLoginModal';
+import { useCurrency } from '../../context/CurrencyContext';
+
+// Helper function - moved outside to prevent recreation
+const shouldShowError = (touched, errors, fieldName) => {
+  return touched[fieldName] && errors[fieldName];
+};
+
+// InputField component - MOVED OUTSIDE to fix one-letter typing bug
+const InputField = ({ label, name, type = "text", required = false, formData, handleChange, handleBlur, touched, errors, ...props }) => (
+  <div className="mb-4">
+    <label className="block text-sm font-medium text-gray-700 mb-1">
+      {label} {required && <span className="text-red-500">*</span>}
+    </label>
+    <input
+      type={type}
+      name={name}
+      value={formData[name] || ''}
+      className={`w-full px-4 py-3 rounded-lg border ${
+        shouldShowError(touched, errors, name) ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:ring-primary/20 focus:border-primary'
+      } focus:outline-none focus:ring-4 transition-all duration-200 bg-gray-50 focus:bg-white`}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      {...props}
+    />
+    {shouldShowError(touched, errors, name) && <p className="text-red-500 text-xs mt-1">{errors[name]}</p>}
+  </div>
+);
+
+// FileInput component - MOVED OUTSIDE to fix one-letter typing bug
+const FileInput = ({ label, name, required = false, accept, formData, handleChange, handleBlur, touched, errors, getFileInputLabel }) => (
+  <div className="mb-4">
+    <label className="block text-sm font-medium text-gray-700 mb-1">
+      {label} {required && <span className="text-red-500">*</span>}
+    </label>
+    <div className={`relative border-2 border-dashed rounded-lg p-4 transition-colors ${
+      shouldShowError(touched, errors, name) ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-primary bg-gray-50 hover:bg-white'
+    }`}>
+      <input
+        type="file"
+        name={name}
+        onChange={handleChange}
+        onBlur={handleBlur}
+        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+        accept={accept}
+        required={required}
+      />
+      <div className="flex flex-col items-center justify-center text-center">
+        <svg className="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+        </svg>
+        <p className="text-sm text-gray-600">
+          <span className="font-medium text-primary">Click to upload</span> or drag and drop
+        </p>
+        <p className="text-xs text-gray-500 mt-1">
+          {getFileInputLabel(formData[name], shouldShowError(touched, errors, name) && errors[name])}
+        </p>
+      </div>
+    </div>
+  </div>
+);
 
 const RecipientsRequestForm = () => {
+  const { currency, exchangeRate } = useCurrency();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState('login');
@@ -176,11 +237,19 @@ const RecipientsRequestForm = () => {
     }
 
     try {
-      const id = JSON.parse(user).userId;
+      // Note: Backend extracts user ID from JWT token, so we don't need to send it
+      // But we'll keep it in localStorage for frontend reference
+      const userData = JSON.parse(user);
+      const id = userData.userid || userData.userId; // Support both formats
       localStorage.setItem('receiverId', id);
 
+      const requestedAmount = parseFloat(formData.donationAmount) || 0;
+      const finalDonationAmount = (currency === 'USD' && exchangeRate) 
+        ? (requestedAmount / exchangeRate).toFixed(0) 
+        : requestedAmount.toString();
+
       const data = {
-        Receiverid: id,
+        // Receiverid is NOT needed - backend gets it from JWT token
         patientname: formData.patientName,
         age: formData.age,
         gender: formData.gender,
@@ -188,7 +257,7 @@ const RecipientsRequestForm = () => {
         medicalreport: formData.medicalReports,
         identificationproof: formData.identificationProof,
         number: formData.phoneNumber,
-        donationamount: formData.donationAmount,
+        donationamount: finalDonationAmount,
         otherproof: formData.applicationFile,
         overview: formData.message
       };
@@ -246,61 +315,7 @@ const RecipientsRequestForm = () => {
     );
   };
 
-  // Helper to determine if a field should show error
-  const shouldShowError = (fieldName) => {
-    return touched[fieldName] && errors[fieldName];
-  };
-
-  const InputField = ({ label, name, type = "text", required = false, ...props }) => (
-    <div className="mb-4">
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      <input
-        type={type}
-        name={name}
-        className={`w-full px-4 py-3 rounded-lg border ${
-          shouldShowError(name) ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:ring-primary/20 focus:border-primary'
-        } focus:outline-none focus:ring-4 transition-all duration-200 bg-gray-50 focus:bg-white`}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        {...props}
-      />
-      {shouldShowError(name) && <p className="text-red-500 text-xs mt-1">{errors[name]}</p>}
-    </div>
-  );
-
-  const FileInput = ({ label, name, required = false, accept }) => (
-    <div className="mb-4">
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      <div className={`relative border-2 border-dashed rounded-lg p-4 transition-colors ${
-        shouldShowError(name) ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-primary bg-gray-50 hover:bg-white'
-      }`}>
-        <input
-          type="file"
-          name={name}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-          accept={accept}
-          required={required}
-        />
-        <div className="flex flex-col items-center justify-center text-center">
-          <svg className="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-          </svg>
-          <p className="text-sm text-gray-600">
-            <span className="font-medium text-primary">Click to upload</span> or drag and drop
-          </p>
-          <p className="text-xs text-gray-500 mt-1">
-            {getFileInputLabel(formData[name], shouldShowError(name) && errors[name])}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
+  // Components are now defined outside - removed from here
 
   return (
     <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
@@ -332,8 +347,8 @@ const RecipientsRequestForm = () => {
         </div>
       )}
       
-      <form onSubmit={handleSubmit} className="p-8 md:p-10">
-        <div className="grid md:grid-cols-2 gap-6">
+      <form onSubmit={handleSubmit} className="p-6 md:p-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Left Column */}
           <div className="space-y-2">
             <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4 border-b pb-2">Personal Details</h4>
@@ -341,9 +356,13 @@ const RecipientsRequestForm = () => {
             <InputField 
               label="Patient Name" 
               name="patientName" 
-              value={formData.patientName} 
               required 
               placeholder="Full Name"
+              formData={formData}
+              handleChange={handleChange}
+              handleBlur={handleBlur}
+              touched={touched}
+              errors={errors}
             />
             
             <div className="grid grid-cols-2 gap-4">
@@ -351,10 +370,14 @@ const RecipientsRequestForm = () => {
                 label="Age" 
                 name="age" 
                 type="number" 
-                value={formData.age} 
                 required 
                 min="1" 
                 max="100"
+                formData={formData}
+                handleChange={handleChange}
+                handleBlur={handleBlur}
+                touched={touched}
+                errors={errors}
               />
               
               <div className="mb-4">
@@ -384,10 +407,14 @@ const RecipientsRequestForm = () => {
               label="Phone Number" 
               name="phoneNumber" 
               type="tel" 
-              value={formData.phoneNumber} 
               required 
               placeholder="10-digit number"
               maxLength="10"
+              formData={formData}
+              handleChange={handleChange}
+              handleBlur={handleBlur}
+              touched={touched}
+              errors={errors}
             />
           </div>
 
@@ -398,16 +425,29 @@ const RecipientsRequestForm = () => {
             <InputField 
               label="Medical Problem" 
               name="medicalProblem" 
-              value={formData.medicalProblem} 
               placeholder="Brief description"
+              formData={formData}
+              handleChange={handleChange}
+              handleBlur={handleBlur}
+              touched={touched}
+              errors={errors}
             />
             
             <InputField 
-              label="Amount Required (₹)" 
+              label={`Amount Required (${currency === 'USD' ? '$' : '₹'})`} 
               name="donationAmount" 
-              value={formData.donationAmount} 
-              placeholder="e.g. 50000"
+              placeholder={currency === 'USD' ? "e.g. 500" : "e.g. 50000"}
+              formData={formData}
+              handleChange={handleChange}
+              handleBlur={handleBlur}
+              touched={touched}
+              errors={errors}
             />
+            {currency === 'USD' && formData.donationAmount && exchangeRate && (
+              <p className="text-[10px] font-bold text-[#4D9186] uppercase tracking-wider -mt-3 mb-4 bg-emerald-50 p-2 rounded-lg border border-emerald-100 italic">
+                ≈ ₹{Math.round(parseFloat(formData.donationAmount) / exchangeRate).toLocaleString()} INR (Target Goal)
+              </p>
+            )}
 
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
@@ -426,23 +466,41 @@ const RecipientsRequestForm = () => {
         {/* File Uploads Section */}
         <div className="mt-8">
           <h4 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-4 border-b pb-2">Documents</h4>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <FileInput 
               label="Medical Reports" 
               name="medicalReports" 
               required 
-              accept=".pdf,.jpg,.jpeg,.png" 
+              accept=".pdf,.jpg,.jpeg,.png"
+              formData={formData}
+              handleChange={handleChange}
+              handleBlur={handleBlur}
+              touched={touched}
+              errors={errors}
+              getFileInputLabel={getFileInputLabel}
             />
             <FileInput 
               label="ID Proof" 
               name="identificationProof" 
               required 
-              accept=".pdf,.jpg,.jpeg,.png" 
+              accept=".pdf,.jpg,.jpeg,.png"
+              formData={formData}
+              handleChange={handleChange}
+              handleBlur={handleBlur}
+              touched={touched}
+              errors={errors}
+              getFileInputLabel={getFileInputLabel}
             />
             <FileInput 
-              label="Patient Photo (Optional)" 
+              label="Patient Photo" 
               name="applicationFile" 
-              accept=".jpg,.jpeg,.png" 
+              accept=".jpg,.jpeg,.png"
+              formData={formData}
+              handleChange={handleChange}
+              handleBlur={handleBlur}
+              touched={touched}
+              errors={errors}
+              getFileInputLabel={getFileInputLabel}
             />
           </div>
         </div>

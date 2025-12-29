@@ -11,8 +11,12 @@ const ALLOWED_PATHS = {
     { label: 'All Recipients', path: '/admin/total-recipients' },
     { label: 'All Donors', path: '/admin/total-donors' },
     { label: 'Requests', path: '/admin/requests' },
-    { label: 'Terms and Condition', path: '/privacy-policy' },
-    { label: 'Privacy Policy', path: '/support' },
+    { label: 'Donations', path: '/admin/donations' },
+    { label: 'Notifications', path: '/admin/notifications' },
+    { label: 'Achieved Missions', path: '/admin/achieved-requests' },
+    { label: 'Contact Messages', path: '/admin/contacts' },
+    { label: 'Terms & Conditions', path: '/terms-conditions' },
+    { label: 'Privacy Policy', path: '/privacy-policy' },
     
     // Dynamic routes (no labels)
     { path: '/admin/recipient/:id' },
@@ -22,7 +26,8 @@ const ALLOWED_PATHS = {
   DONOR: [
     { label: 'Dashboard', path: '/donor/dashboard' },
     { label: 'My Donations', path: '/donor/mydonation' },
-    { label: 'Terms and Condition', path: '/privacy-policy' },
+    { path: '/donor/donation/:requestId' },
+    { label: 'Terms & Conditions', path: '/terms-conditions' },
     { label: 'Privacy Policy', path: '/privacy-policy' },
 
    
@@ -31,9 +36,9 @@ const ALLOWED_PATHS = {
   RECEIVER: [
     { label: 'Dashboard', path: '/recipient/dashboard' },
     { label: 'Request Form', path: '/recipient/request' },
-    { label: 'Terms and Condition', path: '/requests' },
-    { label: 'Privacy Policy', path: '/support' },
-       { path: '/recipient/recipient-details' },
+    { label: 'Terms & Conditions', path: '/terms-conditions' },
+    { label: 'Privacy Policy', path: '/privacy-policy' },
+    { path: '/recipient/recipient-details' },
   ]
 };
 

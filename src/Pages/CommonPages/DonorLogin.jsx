@@ -43,16 +43,18 @@ const DonorLogin = () => {
       if (result.success) {
         setMessage({ text: result.message, type: "success" });
         setTimeout(() => {
+          setLoading(false);
           setShowForgotPassword(false);
           setForgotPasswordStep(1);
           setIsLogin(true);
+          navigate('/login'); // Navigate to main login page
         }, 2000);
       } else {
         setMessage({ text: result.message, type: "error" });
+        setLoading(false);
       }
     } catch (error) {
       setMessage({ text: "Failed to reset password. Please try again.", type: "error" });
-    } finally {
       setLoading(false);
     }
   };
@@ -73,11 +75,14 @@ const DonorLogin = () => {
           setMessage({ text: 'Access denied. Only donor can login here.'});
           return;
         }
+        // Store user data with correct field names matching backend response
         localStorage.setItem(
           "user",
           JSON.stringify({
+            userid: data.userid,      // Backend returns 'userid' (lowercase)
+            username: data.username,
+            email: data.email,
             role: data.role,
-            userId: data.userid,
             token: data.token,
           })
         );
@@ -179,47 +184,64 @@ const DonorLogin = () => {
   };
 
   return (
-    <div className="my-16 flex items-center justify-center">
-      <div className="bg-white/40 p-8 rounded shadow-md w-full max-w-md">
-        <h2 className="text-center text-2xl font-semibold text-gray-900 mb-6">
-          {showForgotPassword 
-            ? (forgotPasswordStep === 1 ? "Forgot Password" : "Reset Password")
-            : (!isLogin ? "Donor Registration" : "Donor Login")
-          }
-        </h2>
-
-        {message.text && (
-          <div className={`mb-4 p-3 rounded text-sm text-center ${
-            message.type === "success" 
-              ? "bg-green-100 text-green-700" 
-              : "bg-red-100 text-red-700"
-          }`}>
-            {message.text}
+    <div className="pt-28 lg:pt-36 pb-10 min-h-screen bg-gradient-to-br from-white via-emerald-50/30 to-white flex items-center justify-center px-4">
+      <div className="bg-white/70 backdrop-blur-xl p-8 md:p-10 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-white/80 w-full max-w-md relative overflow-hidden transition-all duration-300 hover:shadow-[0_22px_60px_rgba(77,145,134,0.12)]">
+        {/* Decorative background circle */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-[#4D9186]/5 rounded-full -mr-16 -mt-16" />
+        
+        <div className="relative z-10">
+          <div className="w-16 h-16 bg-[#4D9186]/10 rounded-2xl flex items-center justify-center mx-auto mb-8">
+            <svg className="w-8 h-8 text-[#4D9186]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
           </div>
-        )}
 
-        {showForgotPassword ? (
-          <ForgotPasswordForm
-            step={forgotPasswordStep}
-            handleSendOTP={handleForgotPassword}
-            handleResetPassword={handleResetPassword}
-            loading={loading}
-            backToLogin={backToLogin}
-          />
-        ) : !isLogin ? (
-          <RegisterForm 
-            handleSubmit={handleRegister} 
-            loading={loading}
-            switchToLogin={switchToLogin}
-          />
-        ) : (
-          <LoginForm 
-            handleSubmit={handleLogin} 
-            loading={loading}
-            switchToRegister={switchToRegister}
-            showForgotPassword={showForgotPasswordForm}
-          />
-        )}
+          <h2 className="text-center text-3xl font-bold text-gray-900 mb-2">
+            {showForgotPassword 
+              ? (forgotPasswordStep === 1 ? "Forgot Password" : "Reset Password")
+              : (!isLogin ? "Join Us" : "Welcome Back")
+            }
+          </h2>
+          <p className="text-center text-gray-500 mb-8">
+            {showForgotPassword 
+              ? "We'll help you get back to your account"
+              : (!isLogin ? "Create a donor account to start helping" : "Login to your donor portal")
+            }
+          </p>
+
+          {message.text && (
+            <div className={`mb-6 p-4 rounded-xl text-sm text-center font-medium animate-in fade-in slide-in-from-top-2 duration-300 ${
+              message.type === "success" 
+                ? "bg-green-50 text-green-700 border border-green-100" 
+                : "bg-red-50 text-red-700 border border-red-100"
+            }`}>
+              {message.text}
+            </div>
+          )}
+
+          {showForgotPassword ? (
+            <ForgotPasswordForm
+              step={forgotPasswordStep}
+              handleSendOTP={handleForgotPassword}
+              handleResetPassword={handleResetPassword}
+              loading={loading}
+              backToLogin={backToLogin}
+            />
+          ) : !isLogin ? (
+            <RegisterForm 
+              handleSubmit={handleRegister} 
+              loading={loading}
+              switchToLogin={switchToLogin}
+            />
+          ) : (
+            <LoginForm 
+              handleSubmit={handleLogin} 
+              loading={loading}
+              switchToRegister={switchToRegister}
+              showForgotPassword={showForgotPasswordForm}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

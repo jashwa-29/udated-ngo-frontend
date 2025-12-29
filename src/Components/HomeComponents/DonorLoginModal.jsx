@@ -32,11 +32,15 @@ const DonorLoginModal = ({ setShowAuthModal, handleAuthSuccess }) => {
           return;
         }
         
+        
+        // Store user data with correct field names matching backend response
         localStorage.setItem(
           "user",
           JSON.stringify({
+            userid: data.userid,      // Backend returns 'userid' (lowercase)
+            username: data.username,
+            email: data.email,
             role: data.role,
-            userId: data.userid,
             token: data.token,
           })
         );

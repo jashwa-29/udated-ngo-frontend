@@ -11,7 +11,7 @@ export const SendForgotPasswordOTP = async (data) => {
 
     // Check status manually
     if (response.status === 200) {
-      return { success: true, message: response.data || "OTP sent successfully!" };
+      return { success: true, message: response.data.message || "OTP sent successfully!" };
     } else if (response.status === 404) {
       return { success: false, message: "Email not found. Please use a registered email." };
     } else if (response.status === 403) {
@@ -34,7 +34,7 @@ export const ResetPassword = async (data) => {
     });
 
     if (response.status === 200) {
-      return { success: true, message: response.data || "Password reset successful!" };
+      return { success: true, message: response.data.message || "Password reset successful!" };
     } else if (response.status === 400) {
       return { success: false, message: "Invalid OTP or missing data." };
     } else if (response.status === 403) {

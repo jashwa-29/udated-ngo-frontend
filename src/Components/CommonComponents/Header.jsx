@@ -79,16 +79,16 @@ const Header = () => {
             {/* Logo */}
             <div className="flex-shrink-0">
               <Link to="/" className="flex items-center gap-2">
-                <img src={logo} alt="GiveAd Logo" className="h-15 w-auto" />
+                <img src={logo} alt="Giving is Divine Logo" className="h-15 w-auto" />
               </Link>
             </div>
 
             {/* Desktop Menu - Hidden on mobile and tablet (md) */}
             <div className="hidden lg:flex items-center space-x-8">
               <Link to="/" className={`text-[16px] font-medium transition-colors ${isActive('/')}`}>Home</Link>
-              <Link to="/about" className={`text-[16px] font-medium transition-colors ${isActive('/about')}`}>About Us</Link>
-              <Link to="/receivers" className={`text-[16px] font-medium transition-colors ${isActive('/receivers')}`}>Receivers</Link>
-              <Link to="/contact" className={`text-[16px] font-medium transition-colors ${isActive('/contact')}`}>Contact</Link>
+              <Link to="/donor-login" className={`text-[16px] font-medium transition-colors ${isActive('/donor-login')}`}>Donor</Link>
+              <Link to="/receivers" className={`text-[16px] font-medium transition-colors ${isActive('/receivers')}`}>Receiver</Link>
+              <Link to="/contact" className={`text-[16px] font-medium transition-colors ${isActive('/contact')}`}>Contact US</Link>
             </div>
 
             {/* Right Section (Currency + Auth) - Hidden on mobile and tablet */}
@@ -153,7 +153,7 @@ const Header = () => {
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-100">
               <Link to="/" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2">
-                <img src={logo} alt="GiveAd Logo" className="h-8 w-auto" />
+                <img src={logo} alt="Giving is Divine Logo" className="h-8 w-auto" />
                 <span className="text-lg font-bold font-heading text-gray-900">Give<span className="text-primary">Ad</span></span>
               </Link>
               <button
@@ -178,25 +178,25 @@ const Header = () => {
                     Home
                   </Link>
                   <Link 
-                    to="/about" 
+                    to="/donor-login" 
                     onClick={() => setMobileMenuOpen(false)} 
-                    className={`px-4 py-3 rounded-lg text-base font-medium transition-colors ${location.pathname === '/about' ? 'bg-primary/10 text-primary' : 'text-gray-700 hover:bg-gray-50'}`}
+                    className={`px-4 py-3 rounded-lg text-base font-medium transition-colors ${location.pathname === '/donor-login' ? 'bg-primary/10 text-primary' : 'text-gray-700 hover:bg-gray-50'}`}
                   >
-                    About Us
+                    Donor
                   </Link>
                   <Link 
                     to="/receivers" 
                     onClick={() => setMobileMenuOpen(false)} 
                     className={`px-4 py-3 rounded-lg text-base font-medium transition-colors ${location.pathname === '/receivers' ? 'bg-primary/10 text-primary' : 'text-gray-700 hover:bg-gray-50'}`}
                   >
-                    Receivers
+                    Receiver
                   </Link>
                   <Link 
                     to="/contact" 
                     onClick={() => setMobileMenuOpen(false)} 
                     className={`px-4 py-3 rounded-lg text-base font-medium transition-colors ${location.pathname === '/contact' ? 'bg-primary/10 text-primary' : 'text-gray-700 hover:bg-gray-50'}`}
                   >
-                    Contact
+                    Contact US
                   </Link>
                 </div>
 

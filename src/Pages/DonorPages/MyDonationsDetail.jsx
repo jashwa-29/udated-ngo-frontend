@@ -1,380 +1,247 @@
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ShieldCheckIcon, HeartIcon, ProgressIcon, FileTextIcon, UserIcon, Sparkles } from "lucide-react";
+import axios from "axios";
+import { useCurrency } from '../../context/CurrencyContext';
+import DonationModal from '../../Components/HomeComponents/DonationModal';
 
 const MyDonationsDetail = () => {
-  const recipients = [
-    {
-      id: 1,
-      name: 'Ravi Sharma',
-      age: 25,
-      phone: '+91 98765 56789',
-      problem: 'Heart Problem',
-      amount: 300000,
-      date: '2025-08-08',
-      status: 'Ongoing',
-      donor: 'Anjali Mehra',
-      donations: [
-        { name: 'Vikas Rao', phone: '+91 99111 22334', date: '2025-08-01', amount: 10000 },
-        { name: 'Meena Das', phone: '+91 98123 45678', date: '2025-08-03', amount: 5000 },
-      ],
-      donors: [
-        { name: 'Anjali Mehra', phone: '+91 98761 23456', email: 'anjali@example.com', amount: 150000, date: '2025-08-02' },
-      ],
-    },
-    {
-      id: 2,
-      name: 'Meena Rani',
-      age: 32,
-      phone: '+91 99876 54321',
-      problem: 'Kidney Failure',
-      amount: 450000,
-      date: '2025-07-12',
-      status: 'Completed',
-      donor: 'Vikram Singh',
-      donations: [
-        { name: 'Tina Verma', phone: '+91 99999 11111', date: '2025-07-05', amount: 20000 },
-        { name: 'Sahil Mehra', phone: '+91 98888 22222', date: '2025-07-10', amount: 15000 },
-      ],
-      donors: [
-        { name: 'Vikram Singh', phone: '+91 98770 10101', email: 'vikram@example.com', amount: 250000, date: '2025-07-08' },
-      ],
-    },
-    {
-      id: 3,
-      name: 'Arjun Verma',
-      age: 19,
-      phone: '+91 97654 32109',
-      problem: 'Leukemia',
-      amount: 550000,
-      date: '2025-09-20',
-      status: 'Ongoing',
-      donor: 'Pooja Yadav',
-      donations: [
-        { name: 'Rohan Patel', phone: '+91 93222 11122', date: '2025-09-05', amount: 50000 },
-        { name: 'Aarti Joshi', phone: '+91 90000 12345', date: '2025-09-10', amount: 10000 },
-      ],
-      donors: [
-        { name: 'Pooja Yadav', phone: '+91 99876 54320', email: 'pooja@example.com', amount: 300000, date: '2025-09-12' },
-      ],
-    },
-    {
-      id: 4,
-      name: 'Sita Kumari',
-      age: 40,
-      phone: '+91 96452 78123',
-      problem: 'Breast Cancer',
-      amount: 600000,
-      date: '2025-06-18',
-      status: 'Completed',
-      donor: 'Raj Malhotra',
-      donations: [
-        { name: 'Nisha Gupta', phone: '+91 91234 67890', date: '2025-06-01', amount: 25000 },
-        { name: 'Manoj Singh', phone: '+91 92345 98765', date: '2025-06-10', amount: 30000 },
-      ],
-      donors: [
-        { name: 'Raj Malhotra', phone: '+91 93456 11223', email: 'raj.malhotra@example.com', amount: 400000, date: '2025-06-15' },
-      ],
-    },
-    {
-      id: 5,
-      name: 'Rohit Saini',
-      age: 28,
-      phone: '+91 95123 45678',
-      problem: 'Liver Cirrhosis',
-      amount: 350000,
-      date: '2025-07-25',
-      status: 'Ongoing',
-      donor: 'Deepika Joshi',
-      donations: [
-        { name: 'Karan Mehta', phone: '+91 99887 66554', date: '2025-07-20', amount: 10000 },
-        { name: 'Preeti Sharma', phone: '+91 98765 12345', date: '2025-07-22', amount: 15000 },
-      ],
-      donors: [
-        { name: 'Deepika Joshi', phone: '+91 98123 98765', email: 'deepika.joshi@example.com', amount: 200000, date: '2025-07-24' },
-      ],
-    },
-    {
-      id: 6,
-      name: 'Fatima Bano',
-      age: 30,
-      phone: '+91 98877 66554',
-      problem: 'Brain Tumor',
-      amount: 750000,
-      date: '2025-08-15',
-      status: 'Ongoing',
-      donor: 'Armaan Khan',
-      donations: [
-        { name: 'Sahil Khan', phone: '+91 99222 33445', date: '2025-08-10', amount: 30000 },
-        { name: 'Ayesha Patel', phone: '+91 99123 44556', date: '2025-08-12', amount: 20000 },
-      ],
-      donors: [
-        { name: 'Armaan Khan', phone: '+91 98989 78787', email: 'armaan.khan@example.com', amount: 400000, date: '2025-08-13' },
-      ],
-    },
-    {
-      id: 7,
-      name: 'Sunil Patil',
-      age: 35,
-      phone: '+91 93567 44321',
-      problem: 'Spinal Injury',
-      amount: 500000,
-      date: '2025-05-30',
-      status: 'Completed',
-      donor: 'Neha Gupta',
-      donations: [
-        { name: 'Vijay Desai', phone: '+91 97654 11223', date: '2025-05-20', amount: 25000 },
-        { name: 'Kiran Rao', phone: '+91 98765 33211', date: '2025-05-25', amount: 20000 },
-      ],
-      donors: [
-        { name: 'Neha Gupta', phone: '+91 98223 44556', email: 'neha.gupta@example.com', amount: 400000, date: '2025-05-28' },
-      ],
-    },
-    {
-      id: 8,
-      name: 'Kavita Mishra',
-      age: 27,
-      phone: '+91 93456 78901',
-      problem: 'Thalassemia',
-      amount: 280000,
-      date: '2025-06-10',
-      status: 'Ongoing',
-      donor: 'Siddharth Rao',
-      donations: [
-        { name: 'Ritu Sharma', phone: '+91 91234 55555', date: '2025-06-05', amount: 10000 },
-        { name: 'Rahul Singh', phone: '+91 92345 66666', date: '2025-06-07', amount: 15000 },
-      ],
-      donors: [
-        { name: 'Siddharth Rao', phone: '+91 93456 12345', email: 'siddharth.rao@example.com', amount: 150000, date: '2025-06-08' },
-      ],
-    },
-    {
-      id: 9,
-      name: 'Imran Qureshi',
-      age: 45,
-      phone: '+91 92345 67890',
-      problem: 'Diabetes Complication',
-      amount: 200000,
-      date: '2025-07-05',
-      status: 'Completed',
-      donor: 'Anita Desai',
-      donations: [
-        { name: 'Alok Jain', phone: '+91 90000 77777', date: '2025-06-30', amount: 5000 },
-        { name: 'Sunita Malhotra', phone: '+91 91111 88888', date: '2025-07-02', amount: 10000 },
-      ],
-      donors: [
-        { name: 'Anita Desai', phone: '+91 92345 12345', email: 'anita.desai@example.com', amount: 150000, date: '2025-07-03' },
-      ],
-    },
-    {
-      id: 10,
-      name: 'Lata Devi',
-      age: 50,
-      phone: '+91 91234 56789',
-      problem: 'Hip Replacement',
-      amount: 400000,
-      date: '2025-09-01',
-      status: 'Ongoing',
-      donor: 'Ramesh Kumar',
-      donations: [
-        { name: 'Pooja Singh', phone: '+91 90000 99999', date: '2025-08-25', amount: 20000 },
-        { name: 'Amit Sharma', phone: '+91 91111 77777', date: '2025-08-28', amount: 15000 },
-      ],
-      donors: [
-        { name: 'Ramesh Kumar', phone: '+91 91234 11111', email: 'ramesh.kumar@example.com', amount: 250000, date: '2025-08-30' },
-      ],
-    },
-    {
-      id: 11,
-      name: 'Mohit Chawla',
-      age: 33,
-      phone: '+91 99812 33445',
-      problem: 'Lung Infection',
-      amount: 320000,
-      date: '2025-08-22',
-      status: 'Completed',
-      donor: 'Simran Kaur',
-      donations: [
-        { name: 'Rajiv Chopra', phone: '+91 93333 44444', date: '2025-08-10', amount: 12000 },
-        { name: 'Neha Singh', phone: '+91 92222 55555', date: '2025-08-15', amount: 10000 },
-      ],
-      donors: [
-        { name: 'Simran Kaur', phone: '+91 99812 33446', email: 'simran.kaur@example.com', amount: 200000, date: '2025-08-18' },
-      ],
-    },
-    {
-      id: 12,
-      name: 'Priya Sen',
-      age: 21,
-      phone: '+91 98712 65432',
-      problem: 'Brain Hemorrhage',
-      amount: 670000,
-      date: '2025-07-17',
-      status: 'Ongoing',
-      donor: 'Nikhil Jain',
-      donations: [
-        { name: 'Aman Gupta', phone: '+91 91234 12345', date: '2025-07-10', amount: 25000 },
-        { name: 'Kajal Sharma', phone: '+91 91111 23456', date: '2025-07-12', amount: 20000 },
-      ],
-      donors: [
-        { name: 'Nikhil Jain', phone: '+91 98765 67890', email: 'nikhil.jain@example.com', amount: 300000, date: '2025-07-14' },
-      ],
-    },
-    {
-      id: 13,
-      name: 'Rakesh Thakur',
-      age: 38,
-      phone: '+91 97645 12345',
-      problem: 'Multiple Injuries',
-      amount: 480000,
-      date: '2025-06-05',
-      status: 'Completed',
-      donor: 'Bhavna Taneja',
-      donations: [
-        { name: 'Deepak Malhotra', phone: '+91 90000 33333', date: '2025-06-01', amount: 15000 },
-        { name: 'Sunil Joshi', phone: '+91 91111 44444', date: '2025-06-03', amount: 20000 },
-      ],
-      donors: [
-        { name: 'Bhavna Taneja', phone: '+91 97654 12346', email: 'bhavna.taneja@example.com', amount: 300000, date: '2025-06-04' },
-      ],
-    },
-  ].map(recipient => {
-    // Calculate total raised amount from donations and donors
-    const donationsTotal = recipient.donations.reduce((sum, donation) => sum + donation.amount, 0);
-    
-    const raisedAmount = donationsTotal 
-    
-    return {
-      ...recipient,
-      raisedAmount,
-      progressPercentage: Math.min(Math.round((raisedAmount / recipient.amount) * 100), 100)
-    };
-  });
+  const { requestId } = useParams();
+  const navigate = useNavigate();
+  const { convert } = useCurrency();
+  const [request, setRequest] = useState(null);
+  const [progress, setProgress] = useState({ raised: 0, percentage: 0 });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [user, setUser] = useState(null);
 
-  const { recipientId } = useParams();
-  const recipientData = recipients.find((item) => item.id === parseInt(recipientId));
+  useEffect(() => {
+    const loggedInUser = JSON.parse(localStorage.getItem('user'));
+    setUser(loggedInUser);
+  }, []);
 
-  if (!recipientData) {
-    return <div>No recipient found for ID {recipientId}.</div>;
-  }
+  const handleDonateClick = () => {
+    if (user && user.role === 'DONOR') {
+      setShowModal(true);
+    } else {
+      navigate('/donor-login');
+    }
+  };
 
-  // Format date to DD/MM/YYYY
+  const fetchData = useCallback(async () => {
+    try {
+      const [reqRes, progRes] = await Promise.all([
+        axios.get(`${import.meta.env.VITE_API_BASE_URL}/Home/GetSingleRequest/${requestId}`),
+        axios.get(`${import.meta.env.VITE_API_BASE_URL}/Home/GetdonationStatus/${requestId}`)
+      ]);
+
+      setRequest(reqRes.data.data);
+      const raised = Array.isArray(progRes.data) 
+        ? progRes.data.reduce((sum, d) => sum + (d.amount || 0), 0)
+        : 0;
+      const goal = reqRes.data.data.donationamount;
+      setProgress({
+        raised,
+        percentage: goal > 0 ? Math.min((raised / goal) * 100, 100) : 0
+      });
+    } catch (err) {
+      console.error("Error fetching detail:", err);
+      setError("Failed to load mission details.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [requestId]);
+
+  useEffect(() => {
+    setIsLoading(true);
+    fetchData();
+  }, [fetchData]);
+
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   };
 
-  // Format currency with commas
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0
-    }).format(amount).replace('₹', '₹ ');
+  const getFileUrl = (filename) => {
+    if (!filename) return null;
+    return `${import.meta.env.VITE_API_BASE_URL}/Home/image/${filename}`;
   };
 
-
-  const navigate = useNavigate()
+  if (isLoading) return <div className="p-20 text-center font-black animate-pulse">Loading Mission Data...</div>;
+  if (error || !request) return <div className="p-20 text-center text-red-500 font-black">{error || "Mission not found."}</div>;
 
   return (
-    <div className="p-8 bg-[#f9f9f9] min-h-screen font-sans">
-      {/* Back Button */}
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center mb-4 gap-2 text-sm text-black font-medium hover:underline"
-      >
-        <ArrowLeft size={16} />
-        Back
-      </button>
-        <h2 className="text-xl font-bold mb-2">Recipient</h2>
-      {/* Recipient Section */}
-      <div className="bg-white p-4 rounded-lg shadow mb-4">
-
-        <div className="flex justify-between lg:flex-row lg:flex-nowrap flex-col md:flex-wrap  lg:gap-0 gap-5 items-center text-sm">
-          <div className="flex flex-col gap-1 items-start text-[17px] font-semibold"><span  className="text-gray-500 text-sm">Patient Name:</span> {recipientData.name}</div>
-          <div className="flex flex-col gap-1 items-start text-[17px] font-semibold"><span  className="text-gray-500 text-sm">Age:</span> {recipientData.age}</div>
-          <div className="flex flex-col gap-1 items-start text-[17px] font-semibold"><span  className="text-gray-500 text-sm">Phone Number:</span> {recipientData.phone}</div>
-          <div className="flex flex-col gap-1 items-start text-[17px] font-semibold"><span  className="text-gray-500 text-sm">Medical Problem:</span> {recipientData.problem}</div>
-          <div className="flex flex-col gap-1 items-start text-[17px] font-semibold"><span  className="text-gray-500 text-sm">Donation Amount:</span> {formatCurrency(recipientData.amount)}</div>
-          <div className="flex flex-col gap-1 items-start text-[17px] font-semibold"><span  className="text-gray-500 text-sm">Submitted On:</span> {formatDate(recipientData.date)}</div>
-          <div className="flex flex-col gap-1 items-start text-[17px] font-semibold">
-            <span  className="text-gray-500 text-sm">Status:</span> 
-            <span className={`${recipientData.status === 'Completed' ? 'text-green-600' : 'text-yellow-600'} font-semibold ml-1`}>
-              {recipientData.status}
-            </span>
+    <div className="bg-[#FCFDFD] min-h-screen pt-32 pb-32 px-4 md:px-8">
+      <div className="max-w-5xl mx-auto">
+        
+        {/* Navigation */}
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-3 text-gray-400 hover:text-[#4D9186] transition-colors mb-12 group"
+        >
+          <div className="p-2 bg-white rounded-xl shadow-sm border border-gray-100 group-hover:bg-[#4D9186] group-hover:text-white transition-all">
+            <ArrowLeft className="w-5 h-5" />
           </div>
+          <span className="text-[10px] font-black uppercase tracking-[0.2em]">Return to Gallery</span>
+        </button>
+
+        {/* Hero Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-20 items-start">
+             <div className="relative group">
+                 <div className="absolute inset-0 bg-[#4D9186]/10 rounded-[3rem] -translate-x-4 translate-y-4 -z-10 group-hover:-translate-x-2 group-hover:translate-y-2 transition-transform duration-700"></div>
+                 <div className="h-[450px] rounded-[3rem] overflow-hidden shadow-2xl relative">
+                     {request.patientimg ? (
+                         <img 
+                            src={getFileUrl(request.patientimg)} 
+                            alt={request.patientname} 
+                            className="w-full h-full object-cover transform transition-transform duration-[2s] group-hover:scale-110"
+                         />
+                     ) : (
+                         <div className="w-full h-full bg-gray-50 flex items-center justify-center">
+                             <HeartIcon className="w-24 h-24 text-gray-100" />
+                         </div>
+                     )}
+                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-10 pt-20">
+                         <span className="text-[10px] font-black text-[#4D9186] bg-white px-4 py-2 rounded-xl uppercase tracking-widest shadow-lg inline-block mb-4">Urgent</span>
+                         <h1 className="text-4xl font-black text-white uppercase tracking-tighter leading-none">{request.patientname}</h1>
+                     </div>
+                 </div>
+             </div>
+
+             <div className="space-y-10">
+                 <div>
+                    <h2 className="text-5xl font-black text-gray-900 uppercase tracking-tighter mb-4 leading-none">The <span className="text-[#4D9186]">Mission</span></h2>
+                    <p className="text-gray-500 font-bold leading-relaxed italic bg-gray-50 p-6 rounded-3xl border border-gray-100 mb-6">
+                      "{request.medicalproblem}"
+                    </p>
+                    <button 
+                      onClick={handleDonateClick}
+                      className="w-full py-5 bg-[#4D9186] text-white rounded-[1.5rem] font-black uppercase tracking-widest hover:bg-gray-900 transition-all shadow-xl shadow-[#4D9186]/10 flex items-center justify-center gap-3 active:scale-[0.98]"
+                    >
+                      <Sparkles className="w-5 h-5" />
+                      Add Further Support
+                    </button>
+                 </div>
+
+                 {/* Progress Stats */}
+                 <div className="bg-white p-10 rounded-[2.5rem] shadow-xl shadow-gray-100 border border-gray-100">
+                    <div className="flex justify-between items-end mb-6">
+                        <div className="flex flex-col">
+                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Fundraising Total</span>
+                            <span className="text-4xl font-black text-gray-900 tracking-tighter">{convert(progress.raised)}</span>
+                        </div>
+                        <div className="flex flex-col items-end">
+                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Remaining</span>
+                            <span className="text-xl font-black text-[#4D9186] tracking-tighter">{convert(request.donationamount - progress.raised)}</span>
+                        </div>
+                    </div>
+
+                    <div className="w-full bg-gray-100 rounded-full h-4 overflow-hidden shadow-inner p-1 mb-8">
+                        <div 
+                          className="bg-gradient-to-r from-[#4D9186] to-[#6fb9ac] h-full rounded-full transition-all duration-[2s] ease-out shadow-lg"
+                          style={{ width: `${progress.percentage}%` }}
+                        ></div>
+                    </div>
+
+                    <div className="flex justify-between items-center bg-gray-50 p-6 rounded-3xl border border-gray-100">
+                        <div className="flex flex-col">
+                           <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Goal Target</span>
+                           <span className="font-black text-gray-900">{convert(request.donationamount)}</span>
+                        </div>
+                        <div className="h-10 w-[1px] bg-gray-200"></div>
+                        <div className="flex flex-col items-end">
+                            <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Impact Status</span>
+                            <span className="font-black text-gray-900">{progress.percentage.toFixed(0)}% Achieved</span>
+                        </div>
+                    </div>
+                 </div>
+             </div>
+        </div>
+
+        {/* Details Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-20">
+            {/* Overview */}
+            <div className="bg-white p-10 rounded-[3rem] shadow-sm border border-gray-100">
+                <div className="flex items-center gap-4 mb-8">
+                   <div className="p-3 bg-blue-50 rounded-2xl">
+                      <FileTextIcon className="w-6 h-6 text-blue-500" />
+                   </div>
+                   <h4 className="text-xl font-black text-gray-900 uppercase tracking-tight">Medical Overview</h4>
+                </div>
+                <p className="text-gray-500 font-medium leading-relaxed italic whitespace-pre-line">
+                   {request.overview}
+                </p>
+            </div>
+
+            {/* Recipient Details */}
+            <div className="bg-white p-10 rounded-[3rem] shadow-sm border border-gray-100">
+                <div className="flex items-center gap-4 mb-8">
+                   <div className="p-3 bg-purple-50 rounded-2xl">
+                      <UserIcon className="w-6 h-6 text-purple-500" />
+                   </div>
+                   <h4 className="text-xl font-black text-gray-900 uppercase tracking-tight">Patient Details</h4>
+                </div>
+                <div className="grid grid-cols-1 gap-6">
+                    {[
+                        { label: "Full Name", value: request.patientname },
+                        { label: "Age", value: `${request.age} Years` },
+                        { label: "Contact Status", value: "Verified Private" },
+                        { label: "Submission Date", value: formatDate(request.createdAt) }
+                    ].map((detail, i) => (
+                        <div key={i} className="flex justify-between items-center py-4 border-b border-gray-50 last:border-0">
+                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{detail.label}</span>
+                            <span className="font-black text-gray-900 uppercase text-sm tracking-tight">{detail.value}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+
+        {/* Attachments Section */}
+        <div className="bg-gray-900 p-12 md:p-16 rounded-[4rem] text-white relative overflow-hidden">
+             <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#4D9186]/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
+             
+             <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-12">
+                 <div className="text-center md:text-left">
+                    <h3 className="text-4xl font-black uppercase tracking-tighter mb-4">Vetting & <span className="text-[#4D9186]">Trust</span></h3>
+                    <p className="text-gray-400 font-bold max-w-md italic">
+                      We maintain absolute transparency. View the verified hospital documentation for this case.
+                    </p>
+                 </div>
+
+                 <div className="flex flex-col gap-4 w-full md:w-auto">
+                    {[
+                      { label: "Medical Diagnosis", file: request.medicalreport },
+                      { label: "Identity Proof", file: request.identificationproof },
+                      { label: "Other Documents", file: request.otherproof }
+                    ].map((doc, i) => doc.file && (
+                        <a 
+                          key={i}
+                          href={getFileUrl(doc.file)} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="flex items-center justify-between gap-6 px-10 py-5 bg-white/5 border border-white/10 rounded-3xl hover:bg-[#4D9186] hover:border-[#4D9186] transition-all group"
+                        >
+                           <span className="text-[10px] font-black uppercase tracking-widest">{doc.label}</span>
+                           <ShieldCheckIcon className="w-5 h-5 text-[#4D9186] group-hover:text-white transition-colors" />
+                        </a>
+                    ))}
+                 </div>
+             </div>
         </div>
       </div>
 
-      <div className="bg-white p-4 rounded-lg shadow mb-4">
-        <h2 className="text-black font-bold text-xl">Overview</h2>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Impedit error dicta facilis ipsa. Quas aliquam et quo deleniti, in nostrum est dicta nihil odio, autem qui assumenda atque sapiente ad.</p>
-      </div>
-
-      {/* Attachments */}
-    <div className="bg-white p-4 rounded-lg shadow mb-4">
-  <h2 className="text-xl font-bold mb-2">Attachments</h2>
- <div className="bg-white p-4 rounded-lg shadow mb-4">
-  <h2 className="text-xl font-bold mb-2">Attachments</h2>
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <div>
-      <label className="block mb-1 font-medium">Medical Reports/Diagnosis</label>
-      <a
-        href="https://example.com/dummy-medical-report.pdf"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-blue-600 hover:underline"
-      >
-        View Document
-      </a>
-    </div>
-    <div>
-      <label className="block mb-1 font-medium">Identification Proof</label>
-      <a
-        href="https://example.com/dummy-id-proof.pdf"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-blue-600 hover:underline"
-      >
-        View Document
-      </a>
-    </div>
-    <div>
-      <label className="block mb-1 font-medium">Others</label>
-      <a
-        href="https://example.com/dummy-other-doc.pdf"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-blue-600 hover:underline"
-      >
-        View Document
-      </a>
-    </div>
-  </div>
-</div>
-
-</div>
-
-      {/* Donation Progress */}
-      <div className="bg-white p-4 rounded-lg shadow mb-4">
-        <h2 className="text-xl font-bold mb-2">Donation</h2>
-        <div className="mb-2">Donation: {recipientData.progressPercentage}%</div>
-        <div className="w-full bg-gray-300 rounded-full h-2 mb-2">
-          <div 
-            className={`h-2 rounded-full ${recipientData.progressPercentage === 100 ? 'bg-green-500' : 'bg-blue-500'}`} 
-            style={{ width: `${recipientData.progressPercentage}%` }}
-          ></div>
-        </div>
-        <div className="text-sm">
-          Raised: {formatCurrency(recipientData.raisedAmount)} | Goal: {formatCurrency(recipientData.amount)}
-        </div>
-      </div>
-
-        <button className="bg-[#4D9186] px-10 py-2.5 text-white text-base font-medium rounded" >Donate</button> 
-
+      <DonationModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onSubmit={fetchData}
+        card={{ ...request, id: request._id || requestId }}
+      />
     </div>
   );
 };

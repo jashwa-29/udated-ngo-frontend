@@ -1,149 +1,151 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import RecipientModal from './RecipientModal';
-import { fetchAllRecipients } from '../../API/Admin API/recipientApi'; // Adjust path as needed
-  import { useCurrency } from '../../context/CurrencyContext';
+import React, { useEffect, useState } from "react";
+import { fetchAllRecipients } from "../../API/Admin API/recipientApi";
+import { useCurrency } from "../../context/CurrencyContext";
+import { Link } from "react-router-dom";
+import { Search, Filter, ChevronRight } from "lucide-react";
 
-const RecipientTable = ({ title, filterdata }) => {
-  const { convert } = useCurrency();
-  
-  const [isModalOpen, setIsModalOpen] = useState(false);
+const TotalRecipients = () => {
   const [recipients, setRecipients] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const user = JSON.parse(localStorage.getItem('user'));
+  const [error, setError] = useState(null);
+  const [filter, setFilter] = useState("all"); // all, approved, pending, rejected
+  const [searchTerm, setSearchTerm] = useState("");
+  
+  const { convert } = useCurrency();
+  const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
-    const loadRecipients = async () => {
-      setLoading(true);
-      setError('');
+    const loadData = async () => {
       try {
+        setLoading(true);
         const data = await fetchAllRecipients(user.token);
-        setRecipients(data);
+        setRecipients(Array.isArray(data) ? data : []);
       } catch (err) {
-        console.error('Error fetching donation requests:', err);
-        setError('Failed to load recipients. Please try again later.');
+        console.error("Error loading recipients:", err);
+        setError("Failed to load recipients");
       } finally {
         setLoading(false);
       }
     };
 
-    if (user?.token) loadRecipients();
+    if (user?.token) loadData();
   }, [user?.token]);
 
-  // Filter recipients by status and targetamountstatus
-  const filteredRecipients = recipients
-    .filter((item) => item.adminapprovedstatus === 'accepted')
-    .filter((item) => item.targetamountstatus === filterdata)
-    .slice(0, 3);
+  const filteredRecipients = recipients.filter(r => {
+    const matchesFilter = filter === "all" || r.status === filter;
+    const matchesSearch = r.patientname?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          r.medicalproblem?.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesFilter && matchesSearch;
+  });
+
+  if (loading) return (
+    <div className="flex justify-center items-center h-60">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#4D9186]"></div>
+    </div>
+  );
 
   return (
-    <div className="mb-10">
-      <div className="flex justify-between items-center">
-        <h2 className="font-semibold text-lg mb-4">{title}</h2>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="text-lg text-right text-black font-semibold hover:underline"
-        >
-          View all
-        </button>
-      </div>
-
-      <div className="space-y-4">
-        {loading ? (
-           <div className="flex justify-center items-center h-40">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#4D9186]"></div>
+    <div className="p-6 bg-white min-h-screen">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 mt-16 md:mt-0">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight">Recipients <span className="text-[#4D9186]">Management</span></h1>
+          <p className="text-sm text-gray-500 font-medium">View and manage all donation requests</p>
         </div>
-        ) : error ? (
-          <div className="text-center py-10 text-red-600">{error}</div>
-        ) : filteredRecipients.length === 0 ? (
-          <div className="text-center text-gray-500 py-10">
-            <svg
-              className="mx-auto h-12 w-12 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1}
-                d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <div className="text-lg">No recipients found in this category.</div>
+        
+        <div className="flex flex-wrap gap-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+            <input 
+              type="text" 
+              placeholder="Search patients..." 
+              className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4D9186]/50 transition-all"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
-        ) : (
-          filteredRecipients.map((item) => (
-            <div
-              key={item.id || item._id} // Use stable id if available
-              className="flex justify-between lg:flex-row lg:flex-nowrap flex-col md:flex-wrap lg:gap-0 gap-5 items-center bg-white p-4 rounded-lg shadow-sm border border-gray-200"
-            >
-              <div>
-                <p className="text-gray-500 text-sm">Patient Name:</p>
-                <p className="text-[17px] font-semibold">{item.patientname}</p>
-              </div>
-              <div>
-                <p className="text-gray-500 text-sm">Age:</p>
-                <p className="text-[17px] font-semibold">{item.patientage}</p>
-              </div>
-              <div>
-                <p className="text-gray-500 text-sm">Phone Number:</p>
-                <p className="text-[17px] font-semibold">{item.patientnumber}</p>
-              </div>
-              <div>
-                <p className="text-gray-500 text-sm">Medical Problem:</p>
-                <p className="text-[17px] font-semibold">{item.medicalproblem}</p>
-              </div>
-              <div>
-                <p className="text-gray-500 text-sm">Donation Amount:</p>
-                <p className="text-[17px] font-semibold">{convert(item.donationamount)}</p>
-              </div>
-              <div>
-                <p className="text-gray-500 text-sm">Submitted On:</p>
-                <p className="text-[17px] font-semibold">
-                  {new Date(item.requesteddate).toLocaleDateString()}
-                </p>
-              </div>
-              <div>
-                <p className="text-gray-500 text-sm">Status:</p>
-                <p
-                  className={`text-[17px] font-semibold ${
-                    item.targetamountstatus === 'ongoing' ? 'text-yellow-500' : 'text-green-600'
-                  }`}
-                >
-                  {item.targetamountstatus}
-                </p>
-              </div>
-              <div>
-                <Link
-                  to={`/admin/recipient/${item.id || item._id}`}
-                  className="bg-[#4D9186] text-white px-4 py-2 text-sm rounded"
-                >
-                  View Donation Details
-                </Link>
-              </div>
-            </div>
-          ))
-        )}
-
-        <RecipientModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          title={`${title} - Full List`}
-          filterdata={filterdata}
-        />
+          
+          <div className="flex bg-gray-100 p-1 rounded-lg">
+            {['all', 'approved', 'pending', 'rejected'].map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`px-4 py-1.5 rounded-md text-sm font-medium capitalize transition-all ${
+                  filter === f ? 'bg-white text-[#4D9186] shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
+
+      {error ? (
+        <div className="p-6 text-red-500 bg-red-50 rounded-lg border border-red-100">{error}</div>
+      ) : filteredRecipients.length === 0 ? (
+        <div className="text-center py-20 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+          <p className="text-gray-400 text-lg">No recipients found matching your criteria.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredRecipients.map((recipient) => (
+            <div 
+              key={recipient._id} 
+              className="bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col"
+            >
+              <div className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                    recipient.status === 'approved' ? 'bg-green-100 text-green-700' :
+                    recipient.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                    'bg-red-100 text-red-700'
+                  }`}>
+                    {recipient.status}
+                  </div>
+                  <span className="text-xs text-gray-400 font-medium">
+                    {new Date(recipient.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+                
+                <h3 className="text-xl font-bold text-gray-800 mb-1">{recipient.patientname}</h3>
+                <p className="text-sm text-gray-500 mb-4 flex items-center gap-2">
+                  <span className="font-semibold text-gray-700">{recipient.age} yrs</span> • {recipient.gender}
+                </p>
+                
+                <div className="space-y-3 mb-6">
+                  <div>
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Medical Condition</p>
+                    <p className="text-sm text-gray-700 line-clamp-2">{recipient.medicalproblem}</p>
+                  </div>
+                  
+                  <div className="flex justify-between items-end">
+                    <div>
+                      <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Target Amount</p>
+                      <p className="text-xl font-black text-[#4D9186]">
+                        {convert(recipient.donationamount)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-auto p-4 bg-gray-50 border-t border-gray-100 italic text-xs text-gray-400 text-center">
+                Contact: {recipient.number}
+              </div>
+              
+              <Link 
+                to={`/admin/request/${recipient._id}`}
+                className="group flex items-center justify-center gap-2 py-4 bg-[#4D9186] text-white font-bold hover:bg-[#3d746b] transition-all"
+              >
+                View Details
+                <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
 
-export default function RecipientsList() {
-  return (
-    <div className="p-8 bg-white min-h-screen">
-      <RecipientTable title="Current Recipients" filterdata="ongoing" />
-      <RecipientTable title="Past Recipients" filterdata="completed" />
-    </div>
-  );
-}
+export default TotalRecipients;

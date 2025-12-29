@@ -3,32 +3,30 @@ import axios from 'axios';
 
 export const getReceiverStatus = async (token, id) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/receiver/MyRequest/${id}`, {
+    const response = await axios.get(`${API_BASE_URL}/receiver/MyRequests`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log('Receiver status response:', response.data);
-    
-    return response.data;
+    // Return the data directly if it's already an array, or extract from response.data.data
+    return response.data.data || (Array.isArray(response.data) ? response.data : []);
   } catch (error) {
     console.error('Error fetching receiver status:', error.response?.data || error.message);
-    throw error; // Re-throw so the caller can handle it too
+    throw error;
   }
 };
+
 export const getReceiverDonationStatus = async (token, id) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/receiver/GetdonationStatus/${id}`, {
+    const response = await axios.get(`${API_BASE_URL}/receiver/RequestDetails/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log('Receiver status response:', response.data);
-    
-    return response.data;
+    return response.data.data || response.data;
   } catch (error) {
-    console.error('Error fetching receiver status:', error.response?.data || error.message);
-    throw error; // Re-throw so the caller can handle it too
+    console.error('Error fetching receiver donation details:', error.response?.data || error.message);
+    throw error;
   }
 };
 

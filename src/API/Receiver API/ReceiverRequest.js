@@ -13,9 +13,16 @@ const api = axios.create({
 // Request interceptor for auth token
 api.interceptors.request.use(
   (config) => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (user?.token) {
-      config.headers.Authorization = `Bearer ${user.token}`;
+    try {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        if (user?.token) {
+          config.headers.Authorization = `Bearer ${user.token}`;
+        }
+      }
+    } catch (error) {
+      console.error('Error reading user token:', error);
     }
     return config;
   },
@@ -47,6 +54,16 @@ export const submitRecipientRequest = async (formData) => {
 };
 
 export const checkReceiverAuth = () => {
-  const user = JSON.parse(localStorage.getItem('user'));
-  return !!(user?.token && user?.role === 'RECEIVER');
+  try {
+    const userStr = localStorage.getItem('user');
+    if (!userStr) return false;
+    
+    const user = JSON.parse(userStr);
+    
+    // Check if user has token AND role is RECEIVER
+    return !!(user?.token && user?.role === 'RECEIVER');
+  } catch (error) {
+    console.error('Error checking receiver auth:', error);
+    return false;
+  }
 };

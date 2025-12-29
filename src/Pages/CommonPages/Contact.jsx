@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { submitContactForm } from '../../API/ContactAPI';
+import { toast } from 'react-hot-toast';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +14,7 @@ const Contact = () => {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [submissionStatus, setSubmissionStatus] = useState(null); // 'success', 'error', or null
+  const [loading, setLoading] = useState(false);
 
   // Validation patterns
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -35,8 +38,15 @@ const Contact = () => {
 
     if (!values.phone.trim()) {
       newErrors.phone = 'Phone number is required';
-    } else if (!phonePattern.test(values.phone.replace(/[\s\-\(\)\+91]/g, ''))) {
-      newErrors.phone = 'Please enter a valid 10-digit Indian mobile number';
+    } else {
+      const cleanPhone = values.phone.replace(/[^\d]/g, '');
+      const finalPhone = (cleanPhone.length === 12 && cleanPhone.startsWith('91')) 
+        ? cleanPhone.slice(2) 
+        : cleanPhone;
+        
+      if (!phonePattern.test(finalPhone)) {
+        newErrors.phone = 'Please enter a valid 10-digit Indian mobile number';
+      }
     }
 
     if (!values.company.trim()) {
@@ -69,7 +79,7 @@ const Contact = () => {
     setErrors(validationErrors);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     // Mark all fields as touched
@@ -83,20 +93,29 @@ const Contact = () => {
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length === 0) {
-      // Simulate API call
-      console.log('Form submitted:', formData);
-      setSubmissionStatus('success');
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        company: '',
-        message: ''
-      });
-      setTouched({});
-      
-      // Reset success message after 5 seconds
-      setTimeout(() => setSubmissionStatus(null), 5000);
+      setLoading(true);
+      try {
+        const response = await submitContactForm(formData);
+        toast.success(response.message || 'Message sent successfully!');
+        setSubmissionStatus('success');
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          company: '',
+          message: ''
+        });
+        setTouched({});
+        
+        // Reset success message after 5 seconds
+        setTimeout(() => setSubmissionStatus(null), 5000);
+      } catch (error) {
+        console.error('Form submission error:', error);
+        toast.error(error.response?.data?.message || 'Failed to send message');
+        setSubmissionStatus('error');
+      } finally {
+        setLoading(false);
+      }
     } else {
       setSubmissionStatus('error');
     }
@@ -252,9 +271,22 @@ const Contact = () => {
                     <div className="sm:col-span-2">
                       <button 
                         type="submit" 
-                        className="inline-flex items-center justify-center w-full px-4 py-4 mt-2 text-base font-semibold hover:text-primary transition duration-300 bg-primary hover:bg-white border border-white hover:border-primary text-white rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                        disabled={loading}
+                        className={`inline-flex items-center justify-center w-full px-4 py-4 mt-2 text-base font-semibold transition duration-300 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 ${
+                          loading 
+                            ? 'bg-gray-400 cursor-not-allowed text-white' 
+                            : 'bg-primary hover:bg-white border border-white hover:border-primary text-white hover:text-primary'
+                        }`}
                       >
-                        Send Message
+                        {loading ? (
+                          <span className="flex items-center">
+                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Sending...
+                          </span>
+                        ) : 'Send Message'}
                       </button>
                     </div>
                   </div>
@@ -270,33 +302,39 @@ const Contact = () => {
                   <h4 className="text-2xl font-semibold text-white font-heading">Contact Info</h4>
 
                   <div className="mt-8 space-y-7">
-                    <div className="flex items-start">
-                      <svg className="flex-shrink-0 text-primary w-7 h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      <span className="block ml-3 text-base text-white font-medium"> 123 Main Street, Mumbai, Maharashtra 400001, India </span>
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-lg shadow-black/20 text-primary">
+                        <svg className="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      </div>
+                      <span className="block ml-4 text-base text-white font-medium"> 123 Main Street, Mumbai, Maharashtra 400001, India </span>
                     </div>
 
-                    <div className="flex items-start">
-                      <svg className="flex-shrink-0 text-primary w-7 h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                      </svg>
-                      <span className="block ml-3 text-base text-white font-medium"> info@example.com </span>
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-lg shadow-black/20 text-primary">
+                        <svg className="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <span className="block ml-4 text-base text-white font-medium"> info@example.com </span>
                     </div>
 
-                    <div className="flex items-start">
-                      <svg className="flex-shrink-0 text-primary w-7 h-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="1.5"
-                          d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                        />
-                      </svg>
-                      <div className="ml-3">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-lg shadow-black/20 text-primary">
+                        <svg className="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                          />
+                        </svg>
+                      </div>
+                      <div className="ml-4">
                         <span className="block text-base text-white font-medium"> +91 9876543210 </span>
-                        <span className="block mt-1 text-base text-white font-medium"> 022 12345678 </span>
+                        <span className="block mt-1 text-[13px] text-white/70 font-medium"> 022 12345678 </span>
                       </div>
                     </div>
                   </div>

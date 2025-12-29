@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { UserLogin } from '../../API/LoginAPI/UserLogin';
 import { userRegister } from '../../API/LoginAPI/UserRegister';
+import { SendForgotPasswordOTP, ResetPassword } from '../../API/LoginAPI/ForgotPassword';
 
 const ReceiverLoginModal = ({ authMode, toggleAuthMode, setShowAuthModal }) => {
   const [authForm, setAuthForm] = useState({
@@ -34,6 +35,8 @@ const ReceiverLoginModal = ({ authMode, toggleAuthMode, setShowAuthModal }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showForgot, setShowForgot] = useState(false);
+  const [forgotStep, setForgotStep] = useState(1);
 
   // Validation functions
   const validateEmail = (email) => {
@@ -162,6 +165,8 @@ const ReceiverLoginModal = ({ authMode, toggleAuthMode, setShowAuthModal }) => {
       name: false,
       confirmPassword: false
     });
+    setShowForgot(false);
+    setForgotStep(1);
   }, [authMode]);
 
   const handleAuthSubmit = async (e) => {
@@ -256,17 +261,135 @@ const ReceiverLoginModal = ({ authMode, toggleAuthMode, setShowAuthModal }) => {
     }
   };
 
+  const handleForgotSubmit = async (email) => {
+    setIsSubmitting(true);
+    setErrors((prev) => ({ ...prev, form: '' }));
+    try {
+      const res = await SendForgotPasswordOTP({ email });
+      if (res.success) {
+        setSuccessMsg(res.message);
+        setForgotStep(2);
+      } else {
+        setErrors((prev) => ({ ...prev, form: res.message }));
+      }
+    } catch (error) {
+      setErrors((prev) => ({ ...prev, form: 'Failed to send OTP.' }));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleResetPassword = async (data) => {
+    setIsSubmitting(true);
+    setErrors((prev) => ({ ...prev, form: '' }));
+    try {
+      const res = await ResetPassword(data);
+      if (res.success) {
+        setSuccessMsg(res.message);
+        setTimeout(() => {
+          setIsSubmitting(false);
+          setShowForgot(false);
+          setForgotStep(1);
+          setSuccessMsg('');
+        }, 2000);
+      } else {
+        setErrors((prev) => ({ ...prev, form: res.message }));
+        setIsSubmitting(false);
+      }
+    } catch (error) {
+      setErrors((prev) => ({ ...prev, form: 'Failed to reset password.' }));
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-lg max-w-md w-full max-h-[90vh] flex flex-col">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-xl font-bold">
-            {authMode === 'login' ? 'Login Required' : 'Create an Account'}
+            {showForgot ? (forgotStep === 1 ? 'Forgot Password' : 'Reset Password') : (authMode === 'login' ? 'Login Required' : 'Create an Account')}
           </h2>
         </div>
         
         <div className="overflow-y-auto flex-grow p-6">
-          <form onSubmit={handleAuthSubmit} className="space-y-4" noValidate>
+          {showForgot ? (
+            <div className="space-y-4">
+               {successMsg && <div className="text-green-600 text-sm p-3 bg-green-50 rounded-md border border-green-100">{successMsg}</div>}
+               {errors.form && <div className="text-red-500 text-sm p-3 bg-red-50 rounded-md border border-red-100">{errors.form}</div>}
+               
+               {forgotStep === 1 ? (
+                 <div className="space-y-4">
+                   <div>
+                     <label className="block text-gray-700 font-medium mb-2">Registered Email</label>
+                     <input
+                       type="email"
+                       className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#4D9186] focus:outline-none"
+                       placeholder="Enter your email"
+                       onChange={(e) => setAuthForm({...authForm, email: e.target.value})}
+                     />
+                   </div>
+                   <button
+                     onClick={() => handleForgotSubmit(authForm.email)}
+                     disabled={isSubmitting || !authForm.email}
+                     className="w-full py-3 bg-[#4D9186] text-white rounded-xl font-bold shadow-lg hover:bg-[#3d7a70] transition-all disabled:opacity-50"
+                   >
+                     {isSubmitting ? (
+                       <span className="flex items-center justify-center">
+                         <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                         </svg>
+                         Sending...
+                       </span>
+                     ) : 'Send OTP'}
+                   </button>
+                 </div>
+               ) : (
+                 <div className="space-y-4">
+                   <div>
+                     <label className="block text-gray-700 font-medium mb-2">OTP</label>
+                     <input
+                       type="text"
+                       className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#4D9186] focus:outline-none"
+                       placeholder="6-digit OTP"
+                       onChange={(e) => setAuthForm({...authForm, otp: e.target.value})}
+                     />
+                   </div>
+                   <div>
+                     <label className="block text-gray-700 font-medium mb-2">New Password</label>
+                     <input
+                       type="password"
+                       className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#4D9186] focus:outline-none"
+                       placeholder="Minimum 8 characters"
+                       onChange={(e) => setAuthForm({...authForm, password: e.target.value})}
+                     />
+                   </div>
+                   <button
+                     onClick={() => handleResetPassword({email: authForm.email, otp: authForm.otp, newPassword: authForm.password})}
+                     disabled={isSubmitting || !authForm.otp || !authForm.password}
+                     className="w-full py-3 bg-[#4D9186] text-white rounded-xl font-bold shadow-lg hover:bg-[#3d7a70] transition-all disabled:opacity-50"
+                   >
+                     {isSubmitting ? (
+                       <span className="flex items-center justify-center">
+                         <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                         </svg>
+                         Processing...
+                       </span>
+                     ) : 'Reset Password'}
+                   </button>
+                 </div>
+               )}
+               <button 
+                 onClick={() => { setShowForgot(false); setErrors({...errors, form: ''}); }}
+                 className="w-full text-center text-sm font-medium text-gray-500 hover:text-[#4D9186]"
+               >
+                 Back to Login
+               </button>
+            </div>
+          ) : (
+            <form onSubmit={handleAuthSubmit} className="space-y-4" noValidate>
             {authMode === 'register' && (
               <div>
                 <label className="block text-gray-700 font-medium mb-2">Full Name</label>
@@ -388,8 +511,18 @@ const ReceiverLoginModal = ({ authMode, toggleAuthMode, setShowAuthModal }) => {
                   ? 'Need an account? Register'
                   : 'Already have an account? Login'}
               </button>
+              {authMode === 'login' && (
+                <button
+                  type="button"
+                  onClick={() => { setShowForgot(true); setForgotStep(1); setErrors({...errors, form: ''}); }}
+                  className="text-sm text-gray-500 hover:text-[#4D9186]"
+                >
+                  Forgot Password?
+                </button>
+              )}
             </div>
           </form>
+          )}
         </div>
         
         <div className="p-4 border-t border-gray-200 bg-gray-50">
