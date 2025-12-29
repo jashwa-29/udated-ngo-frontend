@@ -47,18 +47,20 @@ const Login = () => {
                     height='48'
                     viewBox='0 0 61 60'
                     fill='none'
-                    className="group-hover:stroke-white transition-colors duration-300"
+                    className="transition-colors duration-300"
                   >
                     <path
                       d='M2 51.375C2 47.5957 3.50133 43.9711 6.17373 41.2987C8.84612 38.6263 12.4707 37.125 16.25 37.125H44.75C48.5293 37.125 52.1539 38.6263 54.8263 41.2987C57.4987 43.9711 59 47.5957 59 51.375C59 53.2647 58.2493 55.0769 56.9131 56.4131C55.5769 57.7493 53.7647 58.5 51.875 58.5H9.125C7.23533 58.5 5.42306 57.7493 4.08686 56.4131C2.75067 55.0769 2 53.2647 2 51.375Z'
                       stroke='#4D9186'
                       strokeWidth='2.5'
                       strokeLinejoin='round'
+                      className="group-hover:stroke-white transition-colors duration-300"
                     />
                     <path
                       d='M30.5 22.875C36.4025 22.875 41.1875 18.09 41.1875 12.1875C41.1875 6.28496 36.4025 1.5 30.5 1.5C24.5975 1.5 19.8125 6.28496 19.8125 12.1875C19.8125 18.09 24.5975 22.875 30.5 22.875Z'
                       stroke='#4D9186'
                       strokeWidth='2.5'
+                      className="group-hover:stroke-white transition-colors duration-300"
                     />
                   </svg>
                 </div>
