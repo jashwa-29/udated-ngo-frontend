@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js';
+// import { useStripe, useElements, PaymentElement } from '@stripe/react-stripe-js';
+import axios from 'axios';
 import { ShieldCheckIcon, AlertCircleIcon } from 'lucide-react';
 
-const CheckoutForm = ({ amount, currency, onEmailSet }) => {
-  const stripe = useStripe();
-  const elements = useElements();
+const CheckoutForm = ({ amount, currency, onEmailSet, clientSecret }) => {
+  // const stripe = useStripe();
+  // const elements = useElements();
 
   const [message, setMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  /*
   React.useEffect(() => {
     if (stripe) {
       console.log("Stripe.js has loaded successfully");
@@ -16,16 +18,44 @@ const CheckoutForm = ({ amount, currency, onEmailSet }) => {
       console.warn("Stripe Elements found but Stripe.js is missing");
     }
   }, [stripe, elements]);
+  */
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    /*
     if (!stripe || !elements) {
       return;
     }
+    */
 
     setIsLoading(true);
+    setMessage(null);
 
+    try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      const token = user?.token;
+      
+      // Extract donationId from clientSecret (which we set to `test_secret_${donation._id}`)
+      const donationId = clientSecret.replace('test_secret_', '');
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/payment/confirm-test-payment`,
+        { donationId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.data?.success) {
+        window.location.href = `${window.location.origin}/receivers?payment_success=true`;
+      } else {
+        setMessage("Failed to confirm test payment");
+      }
+    } catch (error) {
+      console.error("Test Payment Error:", error);
+      setMessage(error.response?.data?.message || "An unexpected error occurred during test payment.");
+    }
+
+    /*
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
@@ -40,26 +70,27 @@ const CheckoutForm = ({ amount, currency, onEmailSet }) => {
       console.error("Stripe Checkout Error:", error);
       setMessage(error.message || "An unexpected error occurred.");
     }
+    */
 
     setIsLoading(false);
   };
 
   return (
     <form id="payment-form" onSubmit={handleSubmit} className="space-y-6">
-      <div className="relative min-h-[150px]">
+      <div className="relative min-h-[100px] bg-emerald-50 rounded-3xl border-2 border-dashed border-emerald-200 p-8 text-center flex flex-col items-center justify-center">
+        {/* 
         <PaymentElement 
           id="payment-element" 
           options={{ layout: 'tabs' }} 
           onReady={() => console.log("Stripe Element Ready")}
         />
-        {!stripe && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
-            <div className="text-center p-6">
-              <div className="w-8 h-8 border-4 border-[#4D9186]/30 border-t-[#4D9186] rounded-full animate-spin mx-auto mb-3"></div>
-              <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Loading Secure Vault...</p>
-            </div>
-          </div>
-        )}
+        */}
+        <div className="p-3 bg-white rounded-2xl shadow-sm mb-4">
+          <ShieldCheckIcon className="w-8 h-8 text-emerald-500" />
+        </div>
+        <h3 className="text-xl font-black text-emerald-900 uppercase tracking-tight">Test Payment Mode</h3>
+        <p className="text-sm text-emerald-600 font-bold mt-1">Stripe is currently bypassed for testing.</p>
+        <p className="text-[10px] text-emerald-400 font-black uppercase tracking-widest mt-4">Safe & Secure Sandbox</p>
       </div>
       
       {message && (
@@ -77,7 +108,7 @@ const CheckoutForm = ({ amount, currency, onEmailSet }) => {
       </div>
 
       <button
-        disabled={isLoading || !stripe || !elements}
+        disabled={isLoading}
         id="submit"
         className="w-full py-5 bg-[#4D9186] text-white rounded-3xl font-black uppercase tracking-widest hover:bg-[#3d746b] transition-all shadow-xl shadow-[#4D9186]/20 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
       >

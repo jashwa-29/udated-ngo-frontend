@@ -2,14 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { XIcon, HeartIcon, ShieldCheckIcon } from 'lucide-react';
 import axios from 'axios';
-import { loadStripe } from '@stripe/stripe-js';
+// import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import CheckoutForm from '../PaymentComponents/CheckoutForm';
-
+/*
 // Initialize Stripe
 const stripeKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
 console.log("Stripe Publishable Key found:", !!stripeKey);
 const stripePromise = loadStripe(stripeKey);
+*/
 
 const DonationModal = ({ isOpen, onClose, onSubmit, card }) => {
   const [amount, setAmount] = useState('');
@@ -219,9 +220,9 @@ const DonationModal = ({ isOpen, onClose, onSubmit, card }) => {
                 <p className="text-gray-500 font-medium">Complete your secure contribution</p>
               </div>
             </div>
-            <Elements stripe={stripePromise} options={options}>
-              <CheckoutForm amount={amount} currency={currency} />
-            </Elements>
+            {/* <Elements stripe={stripePromise} options={options}> */}
+              <CheckoutForm amount={amount} currency={currency} clientSecret={clientSecret} />
+            {/* </Elements> */}
             <button 
               onClick={() => setStep(1)}
               className="w-full mt-4 py-3 text-gray-400 font-bold uppercase tracking-widest text-xs hover:text-gray-600 transition-colors"

@@ -411,7 +411,7 @@ const RequestDetails = () => {
                   {[
                     { label: "Medical Report", url: recipientInfo.medicalreport, icon: Stethoscope, color: 'text-blue-600', bg: 'bg-blue-50' },
                     { label: "Identity Proof", url: recipientInfo.identificationproof, icon: ShieldCheck, color: 'text-purple-600', bg: 'bg-purple-50' },
-                    { label: "Other Proof", url: recipientInfo.otherproof, icon: FileText, color: 'text-emerald-600', bg: 'bg-emerald-50', optional: true }
+                    { label: "Patient Image", url: recipientInfo.otherproof, icon: FileText, color: 'text-emerald-600', bg: 'bg-emerald-50', optional: true }
                   ].map((doc, i) => (
                     doc.url ? (
                       <a 
